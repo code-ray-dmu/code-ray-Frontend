@@ -1,45 +1,7 @@
 import { useEffect, useState } from "react";
 import { useNavigate, useParams, useSearchParams } from "react-router-dom";
 import DashboardLayout from "../components/layout/DashboardLayout";
-import { DELETED_ROOMS_KEY, getVisibleRooms } from "../utils/roomStore";
-
-const techOptions = [
-  "React",
-  "TypeScript",
-  "JavaScript",
-  "Next.js",
-  "Vue",
-  "Spring Boot",
-  "JPA",
-  "Node.js",
-  "Express",
-  "Python",
-  "TensorFlow",
-  "PyTorch",
-  "MySQL",
-  "PostgreSQL",
-  "MongoDB",
-  "React Query",
-  "Redux",
-];
-
-const architectureOptions = [
-  "SPA",
-  "MSA",
-  "Monolith",
-  "Pipeline",
-  "Serverless",
-  "MVC",
-];
-
-const focusOptions = [
-  "Frontend Development",
-  "Code Quality",
-  "System Design",
-  "Performance",
-  "Testing",
-  "Collaboration",
-];
+import { getVisibleRooms } from "../utils/roomStore";
 
 const candidates = [
   {
@@ -327,13 +289,8 @@ export default function RoomDetailPage() {
   const [searchParams, setSearchParams] = useSearchParams();
   const visibleRooms = getVisibleRooms();
   const room = visibleRooms.find((item) => item.id === roomId) ?? visibleRooms[0];
-  const [roomOverrides, setRoomOverrides] = useState({});
   const [addedCandidatesByRoom, setAddedCandidatesByRoom] = useState({});
-  const currentRoom = room
-    ? roomOverrides[room.id]
-      ? { ...room, ...roomOverrides[room.id] }
-      : room
-    : null;
+  const currentRoom = room ?? null;
   const roomCandidates = currentRoom
     ? [
         ...candidates.filter((candidate) => candidate.roomId === currentRoom.id),
@@ -354,20 +311,7 @@ export default function RoomDetailPage() {
   const [activeTab, setActiveTab] = useState(
     allowedTabs.has(requestedTab) ? requestedTab : "summary"
   );
-  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [isAddCandidateModalOpen, setIsAddCandidateModalOpen] = useState(false);
-  const [editRoomName, setEditRoomName] = useState(currentRoom?.name ?? "");
-  const [editTechStackInput, setEditTechStackInput] = useState("");
-  const [editSelectedTechStacks, setEditSelectedTechStacks] = useState(
-    currentRoom?.stack ?? []
-  );
-  const [editArchitecture, setEditArchitecture] = useState(
-    currentRoom?.architecture ?? ""
-  );
-  const [editCulture, setEditCulture] = useState(currentRoom?.culture ?? "");
-  const [editPrimaryFocus, setEditPrimaryFocus] = useState(
-    currentRoom?.primaryFocus ?? "Frontend Development"
-  );
   const [candidateGithubUrl, setCandidateGithubUrl] = useState("");
   const selectedCandidate =
     candidateOptions.find((candidate) => candidate.id === selectedCandidateId) ??
@@ -377,18 +321,6 @@ export default function RoomDetailPage() {
   const [selectedQuestionId, setSelectedQuestionId] = useState(questions[0]?.id ?? null);
   const selectedQuestion =
     questions.find((question) => question.id === selectedQuestionId) ?? questions[0];
-  const filteredTechOptions = techOptions.filter((option) => {
-    const normalizedInput = editTechStackInput.trim().toLowerCase();
-
-    if (!normalizedInput) {
-      return !editSelectedTechStacks.includes(option);
-    }
-
-    return (
-      option.toLowerCase().includes(normalizedInput) &&
-      !editSelectedTechStacks.includes(option)
-    );
-  });
 
   useEffect(() => {
     setSelectedCandidateId(candidateOptions[0]?.id ?? null);
@@ -403,19 +335,6 @@ export default function RoomDetailPage() {
   }, [requestedTab]);
 
   useEffect(() => {
-    if (!currentRoom) {
-      return;
-    }
-
-    setEditRoomName(currentRoom.name);
-    setEditSelectedTechStacks(currentRoom.stack);
-    setEditTechStackInput("");
-    setEditArchitecture(currentRoom.architecture);
-    setEditCulture(currentRoom.culture);
-    setEditPrimaryFocus(currentRoom.primaryFocus ?? "Frontend Development");
-  }, [currentRoom]);
-
-  useEffect(() => {
     if (!roomId || currentRoom?.id === roomId || visibleRooms.length === 0) {
       return;
     }
@@ -426,60 +345,6 @@ export default function RoomDetailPage() {
   const handleTabChange = (tab) => {
     setActiveTab(tab);
     setSearchParams({ tab });
-  };
-
-  const addTechStack = (tech) => {
-    if (!tech || editSelectedTechStacks.includes(tech)) {
-      return;
-    }
-
-    setEditSelectedTechStacks((prev) => [...prev, tech]);
-    setEditTechStackInput("");
-  };
-
-  const removeTechStack = (tech) => {
-    setEditSelectedTechStacks((prev) => prev.filter((item) => item !== tech));
-  };
-
-  const handleTechStackKeyDown = (event) => {
-    if (event.key === "Enter") {
-      event.preventDefault();
-
-      const exactMatch = techOptions.find(
-        (option) => option.toLowerCase() === editTechStackInput.trim().toLowerCase()
-      );
-
-      if (exactMatch) {
-        addTechStack(exactMatch);
-        return;
-      }
-
-      if (editTechStackInput.trim()) {
-        addTechStack(editTechStackInput.trim());
-      }
-    }
-
-    if (
-      event.key === "Backspace" &&
-      !editTechStackInput &&
-      editSelectedTechStacks.length > 0
-    ) {
-      removeTechStack(editSelectedTechStacks[editSelectedTechStacks.length - 1]);
-    }
-  };
-
-  const openEditModal = () => {
-    if (!currentRoom) {
-      return;
-    }
-
-    setEditRoomName(currentRoom.name);
-    setEditSelectedTechStacks(currentRoom.stack);
-    setEditTechStackInput("");
-    setEditArchitecture(currentRoom.architecture);
-    setEditCulture(currentRoom.culture);
-    setEditPrimaryFocus(currentRoom.primaryFocus ?? "Frontend Development");
-    setIsEditModalOpen(true);
   };
 
   const handleAddCandidate = () => {
@@ -533,44 +398,6 @@ export default function RoomDetailPage() {
     setSelectedCandidateId(nextCandidate.id);
     setCandidateGithubUrl("");
     setIsAddCandidateModalOpen(false);
-  };
-
-  const handleSaveRoomChanges = () => {
-    if (!currentRoom) {
-      return;
-    }
-
-    setRoomOverrides((prev) => ({
-      ...prev,
-      [currentRoom.id]: {
-        name: editRoomName,
-        primaryFocus: editPrimaryFocus,
-        stack: editSelectedTechStacks,
-        architecture: editArchitecture,
-        culture: editCulture,
-        repoUrl: currentRoom.repoUrl,
-      },
-    }));
-    setIsEditModalOpen(false);
-  };
-
-  const handleDeleteRoom = () => {
-    const deletedRoomIds = (() => {
-      try {
-        return JSON.parse(localStorage.getItem(DELETED_ROOMS_KEY) ?? "[]");
-      } catch {
-        return [];
-      }
-    })();
-
-    if (!currentRoom) {
-      return;
-    }
-
-    const nextDeletedRoomIds = Array.from(new Set([...deletedRoomIds, currentRoom.id]));
-    localStorage.setItem(DELETED_ROOMS_KEY, JSON.stringify(nextDeletedRoomIds));
-    setIsEditModalOpen(false);
-    navigate("/");
   };
 
   const titleMap = {
@@ -985,8 +812,6 @@ export default function RoomDetailPage() {
         questions: "Inspect generated questions and prepare for the interview",
         evaluation: "Capture interview notes and candidate fit assessment",
       }[activeTab]}
-      actionLabel="Edit Room"
-      onActionClick={openEditModal}
     >
       <div className="space-y-6">
         <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
@@ -1043,181 +868,6 @@ export default function RoomDetailPage() {
         {activeTab === "questions" ? renderQuestionsTab() : null}
         {activeTab === "evaluation" ? renderEvaluationTab() : null}
       </div>
-
-      {isEditModalOpen ? (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/30 backdrop-blur-sm">
-          <div className="flex max-h-[85vh] w-full max-w-2xl flex-col rounded-2xl border border-slate-200 bg-white shadow-xl">
-            <div className="border-b border-slate-200 px-6 py-5">
-              <p className="mb-2 text-xs font-semibold uppercase tracking-[0.2em] text-blue-600">
-                Edit
-              </p>
-              <div className="flex items-start justify-between gap-4">
-                <div>
-                  <h2 className="text-xl font-semibold text-slate-900">
-                    Edit Interview Room
-                  </h2>
-                  <p className="mt-1 text-sm text-slate-500">
-                    Update room settings for candidate analysis and question generation.
-                  </p>
-                </div>
-
-                <button
-                  onClick={() => setIsEditModalOpen(false)}
-                  className="text-2xl leading-none text-slate-400 hover:text-slate-600"
-                >
-                  ×
-                </button>
-              </div>
-            </div>
-
-            <div className="flex-1 space-y-6 overflow-y-auto px-6 py-6">
-              <div>
-                <label className="mb-2 block text-sm font-medium text-slate-700">
-                  Primary Focus
-                </label>
-                <p className="mb-3 text-xs text-slate-500">
-                  Choose the main evaluation goal for this room.
-                </p>
-                <div className="flex flex-wrap gap-2">
-                  {focusOptions.map((option) => (
-                    <button
-                      key={option}
-                      type="button"
-                      onClick={() => setEditPrimaryFocus(option)}
-                      className={`rounded-full px-3.5 py-2 text-sm font-medium transition ${
-                        editPrimaryFocus === option
-                          ? "bg-blue-500 text-white shadow-sm"
-                          : "bg-slate-100 text-slate-600 hover:bg-slate-200"
-                      }`}
-                    >
-                      {option}
-                    </button>
-                  ))}
-                </div>
-              </div>
-
-              <div>
-                <label className="mb-2 block text-sm font-medium text-slate-700">
-                  Room Name
-                </label>
-                <input
-                  type="text"
-                  value={editRoomName}
-                  onChange={(event) => setEditRoomName(event.target.value)}
-                  className="w-full rounded-xl border border-slate-200 px-4 py-3 text-sm outline-none focus:border-blue-400"
-                />
-              </div>
-
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <label className="mb-2 block text-sm font-medium text-slate-700">
-                    Tech Stack
-                  </label>
-                  <div className="rounded-xl border border-slate-200 px-3 py-3 focus-within:border-blue-400">
-                    <div className="flex flex-wrap items-center gap-2">
-                      {editSelectedTechStacks.map((tech) => (
-                        <span
-                          key={tech}
-                          className="inline-flex items-center gap-2 rounded-full bg-blue-50 px-3 py-1 text-sm font-medium text-blue-600"
-                        >
-                          {tech}
-                          <button
-                            type="button"
-                            onClick={() => removeTechStack(tech)}
-                            className="text-blue-400 hover:text-blue-600"
-                          >
-                            ×
-                          </button>
-                        </span>
-                      ))}
-
-                      <input
-                        type="text"
-                        value={editTechStackInput}
-                        onChange={(event) => setEditTechStackInput(event.target.value)}
-                        onKeyDown={handleTechStackKeyDown}
-                        placeholder="e.g. React, TypeScript"
-                        className="min-w-[160px] flex-1 border-none bg-transparent text-sm outline-none"
-                      />
-                    </div>
-                  </div>
-
-                  {filteredTechOptions.length > 0 ? (
-                    <div className="mt-3 rounded-xl border border-slate-200 bg-white p-2 shadow-sm">
-                      {filteredTechOptions.slice(0, 5).map((option) => (
-                        <button
-                          key={option}
-                          type="button"
-                          onClick={() => addTechStack(option)}
-                          className="flex w-full items-center rounded-lg px-3 py-2 text-left text-sm text-slate-600 hover:bg-slate-50"
-                        >
-                          {option}
-                        </button>
-                      ))}
-                    </div>
-                  ) : null}
-                </div>
-
-                <div>
-                  <label className="mb-2 block text-sm font-medium text-slate-700">
-                    Architecture
-                  </label>
-                  <div className="mb-3 flex flex-wrap gap-2">
-                    {architectureOptions.map((option) => (
-                      <button
-                        key={option}
-                        type="button"
-                        onClick={() => setEditArchitecture(option)}
-                        className={`rounded-full px-3 py-1.5 text-sm font-medium transition ${
-                          editArchitecture === option
-                            ? "bg-blue-50 text-blue-600"
-                            : "bg-slate-100 text-slate-600 hover:bg-slate-200"
-                        }`}
-                      >
-                        {option}
-                      </button>
-                    ))}
-                  </div>
-                </div>
-              </div>
-
-              <div>
-                <label className="mb-2 block text-sm font-medium text-slate-700">
-                  Team Culture
-                </label>
-                <input
-                  type="text"
-                  value={editCulture}
-                  onChange={(event) => setEditCulture(event.target.value)}
-                  className="w-full rounded-xl border border-slate-200 px-4 py-3 text-sm outline-none focus:border-blue-400"
-                />
-              </div>
-
-            </div>
-
-            <div className="flex justify-end gap-3 border-t border-slate-200 px-6 py-5">
-              <button
-                onClick={handleDeleteRoom}
-                className="mr-auto rounded-xl px-4 py-2.5 text-sm font-medium text-red-500 hover:bg-red-50"
-              >
-                Delete Room
-              </button>
-              <button
-                onClick={() => setIsEditModalOpen(false)}
-                className="rounded-xl border border-slate-200 px-5 py-2.5 text-slate-600 hover:bg-slate-50"
-              >
-                Cancel
-              </button>
-              <button
-                onClick={handleSaveRoomChanges}
-                className="rounded-xl bg-blue-500 px-5 py-2.5 font-medium text-white hover:bg-blue-600"
-              >
-                Save Changes
-              </button>
-            </div>
-          </div>
-        </div>
-      ) : null}
 
       {isAddCandidateModalOpen ? (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/30 backdrop-blur-sm">
