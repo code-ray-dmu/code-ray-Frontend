@@ -3,6 +3,11 @@ import { useNavigate } from "react-router-dom";
 import DashboardLayout from "../components/layout/DashboardLayout";
 import { openCreateRoomModal } from "../utils/createRoomModal";
 import { getVisibleRooms } from "../utils/roomStore";
+import {
+  getRoomMetricsFromApplicants,
+  getRoomStatusLabel,
+  getRoomWorkspaceSeed,
+} from "../utils/workspaceData";
 
 export default function DashboardPage() {
   const navigate = useNavigate();
@@ -18,84 +23,166 @@ export default function DashboardPage() {
       <div className="grid grid-cols-[minmax(0,1fr)_320px] gap-6">
         <section className="space-y-6">
           <div className="grid grid-cols-2 gap-6">
-            {visibleRooms.map((room) => (
-              <div
-                key={room.name}
-                onClick={() => navigate(`/rooms/${room.id}`)}
-                className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm hover:shadow-md transition cursor-pointer"
-              >
-                <div className="flex items-start justify-between mb-4">
-                  <div>
-                    <h3 className="text-xl font-semibold text-slate-900">
-                      {room.name}
-                    </h3>
-                    <p className="text-sm text-slate-500 mt-1">
-                      Updated {room.updatedAt}
-                    </p>
+            {visibleRooms.map((room) => {
+              const seed = getRoomWorkspaceSeed(room.id);
+              const metrics = getRoomMetricsFromApplicants(seed.applicants);
+              const roomStatus = getRoomStatusLabel(
+                seed.applicants,
+                seed.analysisStarted
+              );
+
+              return (
+                <div
+                  key={room.id}
+                  onClick={() => navigate(`/rooms/${room.id}`)}
+                  className="cursor-pointer rounded-2xl border border-slate-200 bg-white p-6 shadow-sm transition hover:shadow-md"
+                >
+                  <div className="mb-4 flex items-start justify-between">
+                    <div>
+                      <h3 className="text-xl font-semibold text-slate-900">
+                        {room.name}
+                      </h3>
+                      <p className="mt-1 text-sm text-slate-500">
+                        Updated {room.updatedAt}
+                      </p>
+                    </div>
+
+                    <span className="rounded-full bg-blue-50 px-3 py-1 text-xs font-semibold text-blue-600">
+                      {roomStatus}
+                    </span>
                   </div>
 
-                  <span className="px-3 py-1 rounded-full bg-blue-50 text-blue-600 text-xs font-semibold">
-                    {room.status}
-                  </span>
-                </div>
+                  {metrics.total === 0 ? (
+                    <div className="mb-4 rounded-2xl border border-dashed border-slate-200 bg-slate-50 p-4">
+                      <p className="text-sm font-medium text-slate-800">
+                        No applicants yet
+                      </p>
+                      <p className="mt-1 text-sm text-slate-500">
+                        Add candidates to start batch analysis.
+                      </p>
+                    </div>
+                  ) : (
+                    <>
+                      <div className="mb-4">
+                        <div className="mb-2 flex items-center justify-between text-sm text-slate-600">
+                          <span>
+                            {metrics.completed}/{metrics.total} analyzed
+                          </span>
+                          <span>{metrics.progressPercent}%</span>
+                        </div>
 
-                <div className="flex flex-wrap gap-2 mb-4">
-                  {room.stack.map((tech) => (
-                    <span
-                      key={tech}
-                      className="px-2.5 py-1 rounded-lg bg-slate-100 text-slate-700 text-xs font-medium"
-                    >
-                      {tech}
-                    </span>
-                  ))}
-                  <span className="px-2.5 py-1 rounded-lg bg-slate-100 text-slate-700 text-xs font-medium">
-                    {room.architecture}
-                  </span>
-                </div>
+                        <div className="h-2 overflow-hidden rounded-full bg-slate-100">
+                          <div
+                            className="h-full rounded-full bg-blue-500 transition-all"
+                            style={{ width: `${metrics.progressPercent}%` }}
+                          />
+                        </div>
+                      </div>
 
-                <p className="text-sm text-slate-600 mb-5">{room.culture}</p>
+                      <div className="mb-4 grid grid-cols-2 gap-3 text-sm">
+                        <div className="rounded-xl bg-slate-50 px-3 py-2">
+                          <p className="text-slate-400">Applicants</p>
+                          <p className="font-semibold text-slate-900">
+                            {metrics.total}
+                          </p>
+                        </div>
 
-                <div className="flex items-center justify-between text-sm text-slate-500">
-                  <span>{room.questions} Questions</span>
-                  <span>{room.evaluations} Evaluations</span>
+                        <div className="rounded-xl bg-slate-50 px-3 py-2">
+                          <p className="text-slate-400">In Progress</p>
+                          <p className="font-semibold text-slate-900">
+                            {metrics.inProgress}
+                          </p>
+                        </div>
+
+                        <div className="rounded-xl bg-slate-50 px-3 py-2">
+                          <p className="text-slate-400">Waiting</p>
+                          <p className="font-semibold text-slate-900">
+                            {metrics.waiting}
+                          </p>
+                        </div>
+
+                        <div className="rounded-xl bg-slate-50 px-3 py-2">
+                          <p className="text-slate-400">Failed</p>
+                          <p className="font-semibold text-slate-900">
+                            {metrics.failed}
+                          </p>
+                        </div>
+                      </div>
+                    </>
+                  )}
+
+                  <div className="flex flex-wrap gap-2">
+                    {room.stack?.map((tech) => (
+                      <span
+                        key={tech}
+                        className="rounded-lg bg-slate-100 px-2.5 py-1 text-xs font-medium text-slate-700"
+                      >
+                        {tech}
+                      </span>
+                    ))}
+
+                    {room.architecture ? (
+                      <span className="rounded-lg bg-slate-100 px-2.5 py-1 text-xs font-medium text-slate-700">
+                        {room.architecture}
+                      </span>
+                    ) : null}
+                  </div>
                 </div>
-              </div>
-            ))}
+              );
+            })}
           </div>
         </section>
 
         <aside className="space-y-6">
           <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
-            <h3 className="text-lg font-semibold text-slate-900 mb-4">
+            <h3 className="mb-4 text-lg font-semibold text-slate-900">
               Quick Start
             </h3>
+
             <ol className="space-y-3 text-sm text-slate-600">
-              <li>1. Create a new interview room</li>
-              <li>2. Add GitHub repository URL</li>
-              <li>3. Generate questions and start interview</li>
+              <li>1. Create a room</li>
+              <li>2. Add multiple applicants</li>
+              <li>3. Start batch analysis</li>
             </ol>
 
             <button
               onClick={openCreateRoomModal}
-              className="mt-5 w-full bg-blue-500 hover:bg-blue-600 text-white py-3 rounded-xl font-medium"
+              className="mt-5 w-full rounded-xl bg-blue-500 py-3 font-medium text-white hover:bg-blue-600"
             >
               Create Room
             </button>
           </div>
 
           <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
-            <h3 className="text-lg font-semibold text-slate-900 mb-4">
-              Recent Activity
+            <h3 className="mb-4 text-lg font-semibold text-slate-900">
+              Batch Overview
             </h3>
+
             <div className="space-y-4 text-sm">
-              <div>
-                <p className="font-medium text-slate-800">Frontend Interview</p>
-                <p className="text-slate-500">Questions generated 1 hour ago</p>
-              </div>
-              <div>
-                <p className="font-medium text-slate-800">Backend Interview</p>
-                <p className="text-slate-500">Evaluation completed today</p>
-              </div>
+              {visibleRooms.map((room) => {
+                const seed = getRoomWorkspaceSeed(room.id);
+                const metrics = getRoomMetricsFromApplicants(seed.applicants);
+
+                return (
+                  <div
+                    key={`overview-${room.id}`}
+                    className="rounded-xl bg-slate-50 p-4"
+                  >
+                    <p className="font-medium text-slate-800">{room.name}</p>
+
+                    {metrics.total === 0 ? (
+                      <p className="mt-1 text-slate-500">
+                        No applicants registered yet
+                      </p>
+                    ) : (
+                      <p className="mt-1 text-slate-500">
+                        {metrics.completed}/{metrics.total} completed ·{" "}
+                        {metrics.inProgress} processing
+                      </p>
+                    )}
+                  </div>
+                );
+              })}
             </div>
           </div>
         </aside>
