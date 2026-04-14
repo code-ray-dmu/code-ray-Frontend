@@ -200,9 +200,9 @@ export function CreateApplicantModal({ group, isOpen, onClose, onCreated }) {
   }
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/30 backdrop-blur-sm">
-      <div className="flex max-h-[85vh] w-full max-w-2xl flex-col rounded-2xl border border-slate-200 bg-white shadow-xl">
-        <div className="flex items-center justify-between border-b border-slate-200 px-6 py-5">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/30 px-4 backdrop-blur-sm">
+      <div className="flex max-h-[calc(100vh-2rem)] w-full max-w-2xl flex-col overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-xl">
+        <div className="flex items-start justify-between gap-3 border-b border-slate-200 px-6 py-5">
           <div>
             <h2 className="text-xl font-semibold text-slate-900">Add Applicant</h2>
             <p className="mt-1 text-sm text-slate-500">
@@ -246,12 +246,12 @@ export function CreateApplicantModal({ group, isOpen, onClose, onCreated }) {
             ) : null}
           </div>
 
-          <div className="flex justify-end gap-3 border-t border-slate-200 px-6 py-5">
+          <div className="flex flex-col-reverse gap-3 border-t border-slate-200 px-6 py-5 sm:flex-row sm:justify-end">
             <button
               type="button"
               onClick={handleClose}
               disabled={isSubmitting}
-              className="rounded-xl border border-slate-200 px-5 py-2.5 text-slate-600 hover:bg-slate-50 disabled:cursor-not-allowed disabled:text-slate-300"
+              className="w-full rounded-xl border border-slate-200 px-5 py-2.5 text-slate-600 hover:bg-slate-50 disabled:cursor-not-allowed disabled:text-slate-300 sm:w-auto"
             >
               Cancel
             </button>
@@ -259,7 +259,7 @@ export function CreateApplicantModal({ group, isOpen, onClose, onCreated }) {
             <button
               type="submit"
               disabled={isSubmitting}
-              className="rounded-xl bg-blue-500 px-5 py-2.5 font-medium text-white hover:bg-blue-600 disabled:cursor-not-allowed disabled:bg-slate-300"
+              className="w-full rounded-xl bg-blue-500 px-5 py-2.5 font-medium text-white hover:bg-blue-600 disabled:cursor-not-allowed disabled:bg-slate-300 sm:w-auto"
             >
               {isSubmitting ? 'Creating Applicant...' : 'Create Applicant'}
             </button>

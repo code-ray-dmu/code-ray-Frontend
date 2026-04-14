@@ -1,5 +1,12 @@
 import { getApiClient } from '../api/api-client.js';
 import {
+  createMockGroup as createMockGroupData,
+  createMockRequestId,
+  getMockGroupDetail as getMockGroupDetailData,
+  getMockGroups as getMockGroupsData,
+  USE_API_MOCK,
+} from '../mock/mock-api-store.js';
+import {
   mapCreatedGroup,
   mapGroupDetail,
   mapGroupListItem,
@@ -83,6 +90,15 @@ export function createGroupListSearchParams(params = {}) {
 }
 
 export async function createGroup(input) {
+  if (USE_API_MOCK) {
+    return {
+      group: mapCreatedGroup(createMockGroupData(input)),
+      meta: mapRequestMeta({
+        request_id: createMockRequestId(),
+      }),
+    };
+  }
+
   const response = await getApiClient().post(GROUP_API_PREFIX, input);
 
   return {
@@ -93,6 +109,22 @@ export async function createGroup(input) {
 
 export async function getGroups(params = {}) {
   const normalizedParams = normalizeGroupListParams(params);
+
+  if (USE_API_MOCK) {
+    const result = getMockGroupsData(normalizedParams);
+
+    return {
+      groups: result.groups.map(mapGroupListItem),
+      meta: mapPaginatedMeta({
+        page: normalizedParams.page,
+        size: normalizedParams.size,
+        total: result.total,
+        request_id: createMockRequestId(),
+      }),
+      params: normalizedParams,
+    };
+  }
+
   const response = await getApiClient().get(GROUP_API_PREFIX, {
     params: normalizedParams,
   });
@@ -105,6 +137,15 @@ export async function getGroups(params = {}) {
 }
 
 export async function getGroupDetail(groupId) {
+  if (USE_API_MOCK) {
+    return {
+      group: mapGroupDetail(getMockGroupDetailData(groupId)),
+      meta: mapRequestMeta({
+        request_id: createMockRequestId(),
+      }),
+    };
+  }
+
   const response = await getApiClient().get(`${GROUP_API_PREFIX}/${groupId}`);
 
   return {

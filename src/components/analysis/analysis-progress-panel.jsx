@@ -36,18 +36,18 @@ function formatTimestamp(value) {
 
 function getStatusDescription(summary) {
   if (summary.status === ANALYSIS_STATUS_VALUES.COMPLETED) {
-    return 'All tracked repository analyses finished successfully. Generated interview questions are ready.';
+    return '추적 중인 저장소 분석이 모두 완료되었습니다. 생성된 면접 질문을 확인할 수 있습니다.';
   }
 
   if (summary.status === ANALYSIS_STATUS_VALUES.FAILED) {
-    return 'At least one tracked repository analysis failed. Review the failure details before retrying.';
+    return '추적 중인 저장소 분석 중 하나 이상이 실패했습니다. 실패 원인을 확인한 뒤 다시 시도해 주세요.';
   }
 
   if (summary.status === ANALYSIS_STATUS_VALUES.IN_PROGRESS) {
-    return 'The applicant analysis is currently running. Status updates refresh automatically every 3 seconds.';
+    return '지원자 분석이 진행 중입니다. 상태는 3초마다 자동으로 새로고침됩니다.';
   }
 
-  return 'The request has been accepted and is waiting for worker processing to begin.';
+  return '분석 요청이 접수되었고, 워커 처리가 시작되기를 기다리고 있습니다.';
 }
 
 function SummaryItem({ label, value }) {
@@ -64,9 +64,9 @@ export function AnalysisProgressPanel({ summary, stages }) {
     <section className="rounded-2xl border border-slate-200 bg-white p-8 shadow-sm">
       <div className="flex flex-wrap items-start justify-between gap-4">
         <div>
-          <p className="text-sm font-medium text-blue-600">AI Analysis Progress</p>
+          <p className="text-sm font-medium text-blue-600">AI 분석 진행 현황</p>
           <h2 className="mt-2 text-2xl font-semibold text-slate-900">
-            {ANALYSIS_STATUS_LABELS[summary.status] ?? summary.status ?? 'Pending'}
+            {ANALYSIS_STATUS_LABELS[summary.status] ?? summary.status ?? '대기 중'}
           </h2>
           <p className="mt-3 max-w-3xl text-sm leading-6 text-slate-500">
             {getStatusDescription(summary)}
@@ -76,15 +76,15 @@ export function AnalysisProgressPanel({ summary, stages }) {
         <span
           className={`rounded-full px-3 py-1 text-xs font-semibold ${getStatusClassName(summary.status)}`}
         >
-          {ANALYSIS_STATUS_LABELS[summary.status] ?? summary.status ?? 'Pending'}
+          {ANALYSIS_STATUS_LABELS[summary.status] ?? summary.status ?? '대기 중'}
         </span>
       </div>
 
       <div className="mt-8 grid gap-4 md:grid-cols-2 xl:grid-cols-4">
-        <SummaryItem label="Tracked Runs" value={summary.totalRuns} />
-        <SummaryItem label="Completed" value={summary.completedRuns} />
-        <SummaryItem label="Failed" value={summary.failedRuns} />
-        <SummaryItem label="Active Stage" value={summary.currentStageLabel ?? '-'} />
+        <SummaryItem label="추적 중인 실행" value={summary.totalRuns} />
+        <SummaryItem label="완료" value={summary.completedRuns} />
+        <SummaryItem label="실패" value={summary.failedRuns} />
+        <SummaryItem label="현재 단계" value={summary.currentStageLabel ?? '-'} />
       </div>
 
       {typeof summary.failureReasonMessage === 'string' && summary.failureReasonMessage.length > 0 ? (
@@ -96,15 +96,15 @@ export function AnalysisProgressPanel({ summary, stages }) {
       <div className="mt-8">
         <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
           <div>
-            <h3 className="text-lg font-semibold text-slate-900">Stage Timeline</h3>
+            <h3 className="text-lg font-semibold text-slate-900">단계 타임라인</h3>
             <p className="mt-1 text-sm text-slate-500">
-              Detailed backend stages update automatically while the worker processes this applicant.
+              워커가 이 지원자를 처리하는 동안 백엔드 단계가 자동으로 갱신됩니다.
             </p>
           </div>
 
           <div className="text-right text-sm text-slate-500">
-            <p>Polling every 3 seconds</p>
-            <p className="mt-1">Last checked: {formatTimestamp(summary.lastUpdatedAt)}</p>
+            <p>3초마다 상태 확인</p>
+            <p className="mt-1">마지막 확인: {formatTimestamp(summary.lastUpdatedAt)}</p>
           </div>
         </div>
 

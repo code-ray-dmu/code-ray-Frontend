@@ -26,6 +26,14 @@ function mapGroupBase(group) {
   };
 }
 
+function normalizeApplicantCount(value) {
+  if (!Number.isInteger(value) || value < 0) {
+    return null;
+  }
+
+  return value;
+}
+
 function normalizePositiveInteger(value, fallbackValue) {
   if (!Number.isInteger(value) || value < 1) {
     return fallbackValue;
@@ -45,18 +53,20 @@ function normalizeNonNegativeInteger(value, fallbackValue) {
 export function mapCreatedGroup(group) {
   return {
     ...mapGroupBase(group),
-    description: null,
-    techStacks: normalizeTechStacks(null),
-    cultureFitPriority: null,
+    description: normalizeString(group?.description),
+    techStacks: normalizeTechStacks(group?.tech_stacks),
+    cultureFitPriority: normalizeString(group?.culture_fit_priority),
+    applicantCount: normalizeApplicantCount(group?.applicant_count),
   };
 }
 
 export function mapGroupListItem(group) {
   return {
     ...mapGroupBase(group),
-    description: null,
-    techStacks: normalizeTechStacks(null),
-    cultureFitPriority: null,
+    description: normalizeString(group?.description),
+    techStacks: normalizeTechStacks(group?.tech_stacks),
+    cultureFitPriority: normalizeString(group?.culture_fit_priority),
+    applicantCount: normalizeApplicantCount(group?.applicant_count),
   };
 }
 
@@ -66,6 +76,7 @@ export function mapGroupDetail(group) {
     description: normalizeString(group?.description),
     techStacks: normalizeTechStacks(group?.tech_stacks),
     cultureFitPriority: normalizeString(group?.culture_fit_priority),
+    applicantCount: normalizeApplicantCount(group?.applicant_count),
   };
 }
 
@@ -83,4 +94,3 @@ export function mapPaginatedMeta(meta) {
     total: normalizeNonNegativeInteger(meta?.total, 0),
   };
 }
-

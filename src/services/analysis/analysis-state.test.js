@@ -5,6 +5,7 @@ import { ANALYSIS_STAGE_VALUES, ANALYSIS_STATUS_VALUES } from './analysis-types.
 import {
   buildStageTimeline,
   createMissingAnalysisRun,
+  getAnalysisProgressPercent,
   getAnalysisSummary,
   getFailureReasonMessage,
   getRecoveredAnalysisRuns,
@@ -202,6 +203,30 @@ test('getAnalysisSummary uses the most advanced active stage across multiple run
 
   assert.equal(summary.status, ANALYSIS_STATUS_VALUES.IN_PROGRESS);
   assert.equal(summary.currentStage, ANALYSIS_STAGE_VALUES.SUMMARY);
+});
+
+test('getAnalysisProgressPercent returns stable values for queued, in-progress, and completed states', () => {
+  assert.equal(
+    getAnalysisProgressPercent({
+      status: ANALYSIS_STATUS_VALUES.QUEUED,
+      currentStage: null,
+    }),
+    8,
+  );
+  assert.equal(
+    getAnalysisProgressPercent({
+      status: ANALYSIS_STATUS_VALUES.IN_PROGRESS,
+      currentStage: ANALYSIS_STAGE_VALUES.FILE_DETAIL,
+    }),
+    60,
+  );
+  assert.equal(
+    getAnalysisProgressPercent({
+      status: ANALYSIS_STATUS_VALUES.COMPLETED,
+      currentStage: ANALYSIS_STAGE_VALUES.QUESTION_GENERATION,
+    }),
+    100,
+  );
 });
 
 test('buildStageTimeline appends unknown stages safely', () => {

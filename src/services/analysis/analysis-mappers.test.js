@@ -10,8 +10,14 @@ import {
   normalizeGeneratedQuestionListMeta,
 } from './analysis-mappers.js';
 import {
+  resetMockApiStore,
+} from '../mock/mock-api-store.js';
+import {
+  getAnalysisRun,
+  getApplicantGeneratedQuestions,
   normalizeAnalysisRunListParams,
   normalizeGeneratedQuestionListParams,
+  requestApplicantAnalysis,
 } from './analysis-api.js';
 
 test('mapAnalysisRequestResult supports snake_case analysis run ids', () => {
@@ -169,4 +175,55 @@ test('normalizeGeneratedQuestionListParams falls back on invalid sort and order 
       order: 'asc',
     },
   );
+});
+
+test('mock analysis api progresses from queued to completed every 3 seconds', async () => {
+  const originalDateNow = Date.now;
+  let currentTimeMs = Date.parse('2026-04-15T00:00:00.000Z');
+
+  Date.now = () => currentTimeMs;
+
+  try {
+    resetMockApiStore();
+
+    const applicantId = 'applicant-jiyoon-kim';
+    const requestResult = await requestApplicantAnalysis(applicantId);
+    const analysisRunId = requestResult.analysisRunIds[0];
+
+    assert.equal(typeof analysisRunId, 'string');
+    assert.ok(analysisRunId.length > 0);
+
+    const queuedResult = await getAnalysisRun(analysisRunId);
+
+    assert.equal(queuedResult.analysisRun.status, 'QUEUED');
+    assert.equal(queuedResult.analysisRun.currentStage, 'REPO_LIST');
+    assert.equal(queuedResult.analysisRun.completedAt, null);
+
+    currentTimeMs += 3_000;
+
+    const inProgressResult = await getAnalysisRun(analysisRunId);
+
+    assert.equal(inProgressResult.analysisRun.status, 'IN_PROGRESS');
+    assert.equal(inProgressResult.analysisRun.currentStage, 'FILE_DETAIL');
+    assert.equal(inProgressResult.analysisRun.completedAt, null);
+
+    currentTimeMs += 3_000;
+
+    const completedResult = await getAnalysisRun(analysisRunId);
+    const generatedQuestionsResult = await getApplicantGeneratedQuestions(applicantId);
+
+    assert.equal(completedResult.analysisRun.status, 'COMPLETED');
+    assert.equal(completedResult.analysisRun.currentStage, 'QUESTION_GENERATION');
+    assert.match(
+      completedResult.analysisRun.completedAt ?? '',
+      /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.000Z$/,
+    );
+    assert.equal(generatedQuestionsResult.questions.length, 3);
+    assert.deepEqual(
+      generatedQuestionsResult.questions.map((question) => question.analysisRunId),
+      [analysisRunId, analysisRunId, analysisRunId],
+    );
+  } finally {
+    Date.now = originalDateNow;
+  }
 });
