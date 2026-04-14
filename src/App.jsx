@@ -1,13 +1,13 @@
-import { Routes, Route } from "react-router-dom";
-import CreateRoomModal from "./components/modals/CreateRoomModal";
-import DashboardPage from "./pages/DashboardPage";
-import LoginPage from "./pages/LoginPage";
-import MainPage from "./pages/MainPage";
-import RoomDetailPage from "./pages/RoomDetailPage";
-import SessionsPage from "./pages/SessionsPage";
-import SignupPage from "./pages/SignupPage";
+import { Route, Routes } from 'react-router-dom';
+import CreateRoomModal from './components/modals/CreateRoomModal';
+import { DashboardPage } from './pages/DashboardPage.jsx';
+import { LoginPage } from './pages/LoginPage.jsx';
+import MainPage from './pages/MainPage';
+import RoomDetailPage from './pages/RoomDetailPage';
+import SessionsPage from './pages/SessionsPage';
+import { SignupPage } from './pages/SignupPage.jsx';
 
-function App() {
+export function App() {
   return (
     <>
       <Routes>
@@ -22,5 +22,3 @@ function App() {
     </>
   );
 }
-
-export default App;
