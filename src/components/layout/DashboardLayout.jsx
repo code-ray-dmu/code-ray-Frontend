@@ -3,6 +3,8 @@ import Sidebar from "./Sidebar";
 
 export default function DashboardLayout({
   rooms = [],
+  recentItems = rooms,
+  recentItemsLabel = 'Recent Rooms',
   title,
   description,
   actionLabel,
@@ -12,7 +14,7 @@ export default function DashboardLayout({
 }) {
   return (
     <div className="h-screen flex bg-slate-50">
-      <Sidebar rooms={rooms} />
+      <Sidebar rooms={recentItems} recentItemsLabel={recentItemsLabel} />
 
       <div className="flex-1 flex flex-col min-w-0">
         <Header
