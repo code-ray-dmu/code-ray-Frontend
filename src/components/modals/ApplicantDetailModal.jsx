@@ -199,7 +199,7 @@ function QuestionsTab() {
   );
 }
 
-function EvaluationTab({ applicant }) {
+function EvaluationTab() {
   return (
     <div className="space-y-5">
       <section className="rounded-2xl border border-slate-200 p-5">
@@ -336,7 +336,7 @@ export default function ApplicantDetailModal({
   } else if (activeTab === "questions") {
     tabContent = <QuestionsTab />;
   } else {
-    tabContent = <EvaluationTab applicant={applicant} />;
+    tabContent = <EvaluationTab />;
   }
 
   return (

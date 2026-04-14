@@ -511,6 +511,7 @@ export default function RoomDetailPage() {
       </div>
 
       <AddApplicantsModal
+        key={String(isAddModalOpen)}
         isOpen={isAddModalOpen}
         onClose={() => setIsAddModalOpen(false)}
         onSave={handleAddApplicants}

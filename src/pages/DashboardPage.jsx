@@ -1,15 +1,16 @@
-import { useState } from "react";
-import { useNavigate } from "react-router-dom";
-import DashboardLayout from "../components/layout/DashboardLayout";
-import { openCreateRoomModal } from "../utils/createRoomModal";
-import { getVisibleRooms } from "../utils/roomStore";
+import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { AuthDebugPanel } from '../components/auth/auth-debug-panel.jsx';
+import DashboardLayout from '../components/layout/DashboardLayout';
+import { openCreateRoomModal } from '../utils/createRoomModal';
+import { getVisibleRooms } from '../utils/roomStore';
 import {
   getRoomMetricsFromApplicants,
   getRoomStatusLabel,
   getRoomWorkspaceSeed,
-} from "../utils/workspaceData";
+} from '../utils/workspaceData';
 
-export default function DashboardPage() {
+export function DashboardPage() {
   const navigate = useNavigate();
   const [visibleRooms] = useState(() => getVisibleRooms());
 
@@ -20,16 +21,13 @@ export default function DashboardPage() {
       description="Manage your AI interview sessions"
       searchPlaceholder="Search by room name..."
     >
-      <div className="grid grid-cols-[minmax(0,1fr)_320px] gap-6">
+      <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_320px]">
         <section className="space-y-6">
-          <div className="grid grid-cols-2 gap-6">
+          <div className="grid gap-6 md:grid-cols-2">
             {visibleRooms.map((room) => {
               const seed = getRoomWorkspaceSeed(room.id);
               const metrics = getRoomMetricsFromApplicants(seed.applicants);
-              const roomStatus = getRoomStatusLabel(
-                seed.applicants,
-                seed.analysisStarted
-              );
+              const roomStatus = getRoomStatusLabel(seed.applicants, seed.analysisStarted);
 
               return (
                 <div
@@ -39,12 +37,8 @@ export default function DashboardPage() {
                 >
                   <div className="mb-4 flex items-start justify-between">
                     <div>
-                      <h3 className="text-xl font-semibold text-slate-900">
-                        {room.name}
-                      </h3>
-                      <p className="mt-1 text-sm text-slate-500">
-                        Updated {room.updatedAt}
-                      </p>
+                      <h3 className="text-xl font-semibold text-slate-900">{room.name}</h3>
+                      <p className="mt-1 text-sm text-slate-500">Updated {room.updatedAt}</p>
                     </div>
 
                     <span className="rounded-full bg-blue-50 px-3 py-1 text-xs font-semibold text-blue-600">
@@ -54,9 +48,7 @@ export default function DashboardPage() {
 
                   {metrics.total === 0 ? (
                     <div className="mb-4 rounded-2xl border border-dashed border-slate-200 bg-slate-50 p-4">
-                      <p className="text-sm font-medium text-slate-800">
-                        No applicants yet
-                      </p>
+                      <p className="text-sm font-medium text-slate-800">No applicants yet</p>
                       <p className="mt-1 text-sm text-slate-500">
                         Add candidates to start batch analysis.
                       </p>
@@ -82,30 +74,22 @@ export default function DashboardPage() {
                       <div className="mb-4 grid grid-cols-2 gap-3 text-sm">
                         <div className="rounded-xl bg-slate-50 px-3 py-2">
                           <p className="text-slate-400">Applicants</p>
-                          <p className="font-semibold text-slate-900">
-                            {metrics.total}
-                          </p>
+                          <p className="font-semibold text-slate-900">{metrics.total}</p>
                         </div>
 
                         <div className="rounded-xl bg-slate-50 px-3 py-2">
                           <p className="text-slate-400">In Progress</p>
-                          <p className="font-semibold text-slate-900">
-                            {metrics.inProgress}
-                          </p>
+                          <p className="font-semibold text-slate-900">{metrics.inProgress}</p>
                         </div>
 
                         <div className="rounded-xl bg-slate-50 px-3 py-2">
                           <p className="text-slate-400">Waiting</p>
-                          <p className="font-semibold text-slate-900">
-                            {metrics.waiting}
-                          </p>
+                          <p className="font-semibold text-slate-900">{metrics.waiting}</p>
                         </div>
 
                         <div className="rounded-xl bg-slate-50 px-3 py-2">
                           <p className="text-slate-400">Failed</p>
-                          <p className="font-semibold text-slate-900">
-                            {metrics.failed}
-                          </p>
+                          <p className="font-semibold text-slate-900">{metrics.failed}</p>
                         </div>
                       </div>
                     </>
@@ -134,10 +118,10 @@ export default function DashboardPage() {
         </section>
 
         <aside className="space-y-6">
+          <AuthDebugPanel />
+
           <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
-            <h3 className="mb-4 text-lg font-semibold text-slate-900">
-              Quick Start
-            </h3>
+            <h3 className="mb-4 text-lg font-semibold text-slate-900">Quick Start</h3>
 
             <ol className="space-y-3 text-sm text-slate-600">
               <li>1. Create a room</li>
@@ -154,9 +138,7 @@ export default function DashboardPage() {
           </div>
 
           <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
-            <h3 className="mb-4 text-lg font-semibold text-slate-900">
-              Batch Overview
-            </h3>
+            <h3 className="mb-4 text-lg font-semibold text-slate-900">Batch Overview</h3>
 
             <div className="space-y-4 text-sm">
               {visibleRooms.map((room) => {
@@ -164,20 +146,15 @@ export default function DashboardPage() {
                 const metrics = getRoomMetricsFromApplicants(seed.applicants);
 
                 return (
-                  <div
-                    key={`overview-${room.id}`}
-                    className="rounded-xl bg-slate-50 p-4"
-                  >
+                  <div key={`overview-${room.id}`} className="rounded-xl bg-slate-50 p-4">
                     <p className="font-medium text-slate-800">{room.name}</p>
 
                     {metrics.total === 0 ? (
-                      <p className="mt-1 text-slate-500">
-                        No applicants registered yet
-                      </p>
+                      <p className="mt-1 text-slate-500">No applicants registered yet</p>
                     ) : (
                       <p className="mt-1 text-slate-500">
-                        {metrics.completed}/{metrics.total} completed ·{" "}
-                        {metrics.inProgress} processing
+                        {metrics.completed}/{metrics.total} completed · {metrics.inProgress}{' '}
+                        processing
                       </p>
                     )}
                   </div>

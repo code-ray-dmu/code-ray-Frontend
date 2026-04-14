@@ -1,157 +1,236 @@
-import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import axios from 'axios';
+import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { signUp } from '../services/auth/auth-api.js';
 
-export default function SignupPage() {
+function normalizeEmail(email) {
+  return email.trim().toLowerCase();
+}
+
+function getEmailValidationMessage(email) {
+  const normalizedEmail = normalizeEmail(email);
+
+  if (normalizedEmail.length === 0) {
+    return 'Please enter your email.';
+  }
+
+  const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+  if (!emailPattern.test(normalizedEmail)) {
+    return 'Please enter a valid email address.';
+  }
+
+  return null;
+}
+
+function getPasswordConfirmationMessage(password, confirmPassword) {
+  if (confirmPassword.length === 0) {
+    return null;
+  }
+
+  if (password !== confirmPassword) {
+    return 'Passwords do not match.';
+  }
+
+  return 'Passwords match.';
+}
+
+function getFormValidationMessage(input, confirmPassword) {
+  if (input.name.trim().length === 0) {
+    return 'Please enter your name.';
+  }
+
+  const emailValidationMessage = getEmailValidationMessage(input.email);
+
+  if (emailValidationMessage !== null) {
+    return emailValidationMessage;
+  }
+
+  if (input.password.length === 0) {
+    return 'Please enter your password.';
+  }
+
+  if (confirmPassword.length === 0) {
+    return 'Please confirm your password.';
+  }
+
+  if (input.password !== confirmPassword) {
+    return 'Passwords do not match.';
+  }
+
+  return null;
+}
+
+function getApiErrorCode(error) {
+  if (!axios.isAxiosError(error)) {
+    return null;
+  }
+
+  return error.response?.data?.error?.code ?? null;
+}
+
+function getSignUpErrorMessage(error) {
+  const errorCode = getApiErrorCode(error);
+
+  if (errorCode === 'USER_EMAIL_CONFLICT') {
+    return 'This email is already in use.';
+  }
+
+  if (errorCode === 'VALIDATION_ERROR') {
+    return 'Please review your input and try again.';
+  }
+
+  if (axios.isAxiosError(error) && error.response === undefined) {
+    return 'Unable to reach the server. Please check your connection and try again.';
+  }
+
+  if (error instanceof Error && error.message.length > 0) {
+    return error.message;
+  }
+
+  return 'Sign up failed. Please try again.';
+}
+
+export function SignupPage() {
   const navigate = useNavigate();
+  const [name, setName] = useState('');
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
+  const [submitErrorMessage, setSubmitErrorMessage] = useState('');
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [confirmPassword, setConfirmPassword] = useState("");
-  const [emailCheckMessage, setEmailCheckMessage] = useState("");
-  const [isEmailChecked, setIsEmailChecked] = useState(false);
+  const passwordConfirmationMessage = getPasswordConfirmationMessage(password, confirmPassword);
+  const isPasswordConfirmed = password.length > 0 && password === confirmPassword;
 
-  const takenEmails = ["admin@code-ray.com", "test@code-ray.com", "demo@code-ray.com"];
+  async function handleSubmit(event) {
+    event.preventDefault();
 
-  const handleEmailChange = (event) => {
+    const normalizedInput = {
+      name: name.trim(),
+      email: normalizeEmail(email),
+      password,
+    };
+
+    const validationMessage = getFormValidationMessage(normalizedInput, confirmPassword);
+
+    if (validationMessage !== null) {
+      setSubmitErrorMessage(validationMessage);
+      return;
+    }
+
+    setSubmitErrorMessage('');
+    setIsSubmitting(true);
+
+    try {
+      await signUp(normalizedInput);
+
+      navigate('/login', {
+        replace: true,
+        state: {
+          email: normalizedInput.email,
+          signupSuccessMessage: 'Your account has been created. Please sign in.',
+        },
+      });
+    } catch (error) {
+      setSubmitErrorMessage(getSignUpErrorMessage(error));
+    } finally {
+      setIsSubmitting(false);
+    }
+  }
+
+  function handleNameChange(event) {
+    setName(event.target.value);
+    setSubmitErrorMessage('');
+  }
+
+  function handleEmailChange(event) {
     setEmail(event.target.value);
-    setIsEmailChecked(false);
-    setEmailCheckMessage("");
-  };
+    setSubmitErrorMessage('');
+  }
 
-  const handleEmailDuplicateCheck = () => {
-    const trimmedEmail = email.trim().toLowerCase();
+  function handlePasswordChange(event) {
+    setPassword(event.target.value);
+    setSubmitErrorMessage('');
+  }
 
-    if (!trimmedEmail) {
-      setIsEmailChecked(false);
-      setEmailCheckMessage("이메일을 먼저 입력해주세요.");
-      return;
-    }
-
-    const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!emailPattern.test(trimmedEmail)) {
-      setIsEmailChecked(false);
-      setEmailCheckMessage("올바른 이메일 형식을 입력해주세요.");
-      return;
-    }
-
-    if (takenEmails.includes(trimmedEmail)) {
-      setIsEmailChecked(false);
-      setEmailCheckMessage("이미 사용 중인 이메일입니다.");
-      return;
-    }
-
-    setIsEmailChecked(true);
-    setEmailCheckMessage("사용 가능한 이메일입니다.");
-  };
-
-  const passwordsMatch =
-    password.length > 0 &&
-    confirmPassword.length > 0 &&
-    password === confirmPassword;
+  function handleConfirmPasswordChange(event) {
+    setConfirmPassword(event.target.value);
+    setSubmitErrorMessage('');
+  }
 
   return (
-    <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-
-      {/* 🔵 회원가입 카드 */}
-      <div className="w-full max-w-md bg-white rounded-2xl shadow-md p-8">
-
-        {/* 로고 */}
-        <div className="text-center mb-6">
-          <img
-            src="/logo.png"
-            alt="Code-Ray"
-            className="mx-auto h-14 w-auto"
-          />
-          <p className="text-gray-500 text-sm mt-2">
-            Create your account 🚀
-          </p>
+    <div className="flex min-h-screen items-center justify-center bg-gray-50">
+      <div className="w-full max-w-md rounded-2xl bg-white p-8 shadow-md">
+        <div className="mb-6 text-center">
+          <img src="/logo.png" alt="Code-Ray" className="mx-auto h-14 w-auto" />
+          <p className="mt-2 text-sm text-gray-500">Create your account</p>
         </div>
 
-        {/* 입력 */}
-        <div className="space-y-4">
-          <div>
-            <div className="flex gap-2">
-              <input
-                type="email"
-                placeholder="Email"
-                className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-400 outline-none"
-                value={email}
-                onChange={handleEmailChange}
-              />
-              <button
-                type="button"
-                onClick={handleEmailDuplicateCheck}
-                className="shrink-0 rounded-lg border border-blue-200 px-4 py-2 text-sm font-semibold text-blue-600 hover:bg-blue-50"
-              >
-                중복 확인
-              </button>
-            </div>
+        <form className="space-y-4" onSubmit={handleSubmit}>
+          <input
+            type="text"
+            placeholder="Name"
+            className="w-full rounded-lg border px-4 py-2 outline-none focus:ring-2 focus:ring-blue-400"
+            value={name}
+            onChange={handleNameChange}
+          />
 
-            {emailCheckMessage ? (
-              <p
-                className={`mt-2 text-xs ${
-                  isEmailChecked ? "text-emerald-600" : "text-red-500"
-                }`}
-              >
-                {emailCheckMessage}
-              </p>
-            ) : null}
-          </div>
+          <input
+            type="email"
+            placeholder="Email"
+            className="w-full rounded-lg border px-4 py-2 outline-none focus:ring-2 focus:ring-blue-400"
+            value={email}
+            onChange={handleEmailChange}
+          />
 
           <input
             type="password"
             placeholder="Password"
-            className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-400 outline-none"
+            className="w-full rounded-lg border px-4 py-2 outline-none focus:ring-2 focus:ring-blue-400"
             value={password}
-            onChange={(e) => setPassword(e.target.value)}
+            onChange={handlePasswordChange}
           />
 
           <input
             type="password"
             placeholder="Confirm Password"
-            className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-400 outline-none"
+            className="w-full rounded-lg border px-4 py-2 outline-none focus:ring-2 focus:ring-blue-400"
             value={confirmPassword}
-            onChange={(e) => setConfirmPassword(e.target.value)}
+            onChange={handleConfirmPasswordChange}
           />
 
-          {confirmPassword ? (
-            <p className={`text-xs ${passwordsMatch ? "text-emerald-600" : "text-red-500"}`}>
-              {passwordsMatch
-                ? "비밀번호가 일치합니다."
-                : "비밀번호가 일치하지 않습니다."}
+          {passwordConfirmationMessage !== null ? (
+            <p className={`text-xs ${isPasswordConfirmed ? 'text-emerald-600' : 'text-red-500'}`}>
+              {passwordConfirmationMessage}
             </p>
           ) : null}
-        </div>
 
-        {/* 회원가입 버튼 */}
-        <button
-          disabled={!isEmailChecked || !passwordsMatch}
-          className="w-full mt-6 bg-blue-500 hover:bg-blue-600 disabled:bg-slate-300 disabled:cursor-not-allowed text-white py-2 rounded-lg font-semibold"
-        >
-          Sign Up
-        </button>
+          {submitErrorMessage.length > 0 ? (
+            <p className="text-xs text-red-500">{submitErrorMessage}</p>
+          ) : null}
 
-        {/* 하단 */}
-        <div className="text-center mt-4 text-sm text-gray-500">
-          Already have an account?{" "}
-          <span
-            onClick={() => navigate("/login")}
-            className="text-blue-500 cursor-pointer"
+          <button
+            type="submit"
+            disabled={isSubmitting}
+            className="mt-6 w-full rounded-lg bg-blue-500 py-2 font-semibold text-white hover:bg-blue-600 disabled:cursor-not-allowed disabled:bg-slate-300"
           >
+            {isSubmitting ? 'Signing Up...' : 'Sign Up'}
+          </button>
+        </form>
+
+        <div className="mt-4 text-center text-sm text-gray-500">
+          Already have an account?{' '}
+          <span onClick={() => navigate('/login')} className="cursor-pointer text-blue-500">
             Sign in
           </span>
         </div>
 
-        {/* 뒤로가기 */}
-        <div className="text-center mt-2 text-xs text-gray-400">
-          <span
-            onClick={() => navigate("/")}
-            className="cursor-pointer hover:underline"
-          >
-            ← Back to Home
+        <div className="mt-2 text-center text-xs text-gray-400">
+          <span onClick={() => navigate('/')} className="cursor-pointer hover:underline">
+            Back to Home
           </span>
         </div>
-
       </div>
     </div>
   );

@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import Papa from "papaparse";
 import { createEmptyApplicant } from "../../utils/workspaceData";
 
@@ -8,12 +8,6 @@ export default function AddApplicantsModal({
   onSave,
 }) {
   const [rows, setRows] = useState([createEmptyApplicant()]);
-
-  useEffect(() => {
-    if (isOpen) {
-      setRows([createEmptyApplicant()]);
-    }
-  }, [isOpen]);
 
   if (!isOpen) return null;
 
