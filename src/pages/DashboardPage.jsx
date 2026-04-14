@@ -1,165 +1,297 @@
-import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useEffect, useState } from 'react';
+import { useLocation, useNavigate, useSearchParams } from 'react-router-dom';
 import { AuthDebugPanel } from '../components/auth/auth-debug-panel.jsx';
+import { GroupListSection } from '../components/groups/group-list-section.jsx';
+import { GroupPagination } from '../components/groups/group-pagination.jsx';
 import DashboardLayout from '../components/layout/DashboardLayout';
-import { openCreateRoomModal } from '../utils/createRoomModal';
-import { getVisibleRooms } from '../utils/roomStore';
+import { getApiErrorCode } from '../services/api/api-types.js';
 import {
-  getRoomMetricsFromApplicants,
-  getRoomStatusLabel,
-  getRoomWorkspaceSeed,
-} from '../utils/workspaceData';
+  createGroupListSearchParams,
+  getGroups,
+  normalizeGroupListParams,
+} from '../services/groups/group-api.js';
+import {
+  DEFAULT_GROUP_LIST_PAGE,
+  DEFAULT_GROUP_LIST_SIZE,
+} from '../services/groups/group-types.js';
+
+function getGroupListErrorMessage(error) {
+  const errorCode = getApiErrorCode(error);
+
+  if (errorCode === 'UNAUTHORIZED' || errorCode === 'AUTH_TOKEN_EXPIRED') {
+    return 'Your session is no longer valid. Please sign in again and retry.';
+  }
+
+  if (errorCode === 'FORBIDDEN_RESOURCE_ACCESS') {
+    return 'You do not have permission to access this group list.';
+  }
+
+  if (error?.response === undefined) {
+    return 'Unable to reach the server. Please check your connection and try again.';
+  }
+
+  if (error instanceof Error && error.message.length > 0) {
+    return error.message;
+  }
+
+  return 'Group list request failed. Please try again.';
+}
 
 export function DashboardPage() {
+  const location = useLocation();
   const navigate = useNavigate();
-  const [visibleRooms] = useState(() => getVisibleRooms());
+  const [searchParams, setSearchParams] = useSearchParams();
+  const [groups, setGroups] = useState([]);
+  const [groupListMeta, setGroupListMeta] = useState({
+    page: DEFAULT_GROUP_LIST_PAGE,
+    size: DEFAULT_GROUP_LIST_SIZE,
+    total: 0,
+    requestId: null,
+  });
+  const [isLoadingGroups, setIsLoadingGroups] = useState(true);
+  const [groupListErrorMessage, setGroupListErrorMessage] = useState(null);
+  const [groupCreationSuccessMessage, setGroupCreationSuccessMessage] = useState('');
+  const [retryCount, setRetryCount] = useState(0);
+
+  const normalizedParams = normalizeGroupListParams({
+    page: searchParams.get('page'),
+    size: searchParams.get('size'),
+    sort: searchParams.get('sort'),
+    order: searchParams.get('order'),
+  });
+  const normalizedSearchParams = createGroupListSearchParams(normalizedParams);
+  const currentSearchParamsString = searchParams.toString();
+  const normalizedSearchParamsString = normalizedSearchParams.toString();
+  const isSearchParamsNormalized = currentSearchParamsString === normalizedSearchParamsString;
+  const currentPage = normalizedParams.page;
+  const currentSize = normalizedParams.size;
+  const currentSort = normalizedParams.sort;
+  const currentOrder = normalizedParams.order;
+  const recentGroups = groups.map((group) => ({
+    id: group.id,
+    name: group.name ?? 'Untitled Group',
+    href: typeof group.id === 'string' ? `/groups/${group.id}` : '/dashboard',
+  }));
+
+  useEffect(() => {
+    if (isSearchParamsNormalized) {
+      return;
+    }
+
+    setSearchParams(new URLSearchParams(normalizedSearchParamsString), {
+      replace: true,
+    });
+  }, [isSearchParamsNormalized, normalizedSearchParamsString, setSearchParams]);
+
+  useEffect(() => {
+    if (!isSearchParamsNormalized) {
+      return;
+    }
+
+    let isMounted = true;
+
+    async function loadGroups() {
+      setIsLoadingGroups(true);
+      setGroupListErrorMessage(null);
+      setGroupListMeta((previousMeta) => ({
+        ...previousMeta,
+        page: currentPage,
+        size: currentSize,
+      }));
+
+      try {
+        const response = await getGroups({
+          page: currentPage,
+          size: currentSize,
+          sort: currentSort,
+          order: currentOrder,
+        });
+
+        if (!isMounted) {
+          return;
+        }
+
+        setGroups(response.groups);
+        setGroupListMeta(response.meta);
+      } catch (error) {
+        if (!isMounted) {
+          return;
+        }
+
+        setGroups([]);
+        setGroupListMeta((previousMeta) => ({
+          ...previousMeta,
+          page: currentPage,
+          size: currentSize,
+          total: 0,
+        }));
+        setGroupListErrorMessage(getGroupListErrorMessage(error));
+      } finally {
+        if (isMounted) {
+          setIsLoadingGroups(false);
+        }
+      }
+    }
+
+    void loadGroups();
+
+    return () => {
+      isMounted = false;
+    };
+  }, [currentOrder, currentPage, currentSize, currentSort, isSearchParamsNormalized, retryCount]);
+
+  useEffect(() => {
+    const refreshGroupsAt = location.state?.refreshGroupsAt;
+    const createdGroupName = location.state?.createdGroupName;
+
+    if (typeof refreshGroupsAt !== 'number') {
+      return;
+    }
+
+    setGroupCreationSuccessMessage(
+      typeof createdGroupName === 'string' && createdGroupName.length > 0
+        ? `Group "${createdGroupName}" was created successfully.`
+        : 'Group was created successfully.',
+    );
+    setRetryCount((previousRetryCount) => previousRetryCount + 1);
+  }, [location.state]);
+
+  function updateSearchParams(nextParams) {
+    setSearchParams(createGroupListSearchParams(nextParams));
+  }
+
+  function handlePageChange(nextPage) {
+    if (nextPage < 1 || nextPage === normalizedParams.page) {
+      return;
+    }
+
+    updateSearchParams({
+      ...normalizedParams,
+      page: nextPage,
+    });
+  }
+
+  function handlePageSizeChange(event) {
+    const nextSize = Number(event.target.value);
+
+    updateSearchParams({
+      ...normalizedParams,
+      page: DEFAULT_GROUP_LIST_PAGE,
+      size: nextSize,
+    });
+  }
+
+  function handleRetry() {
+    setRetryCount((previousRetryCount) => previousRetryCount + 1);
+  }
+
+  function handleSelectGroup(group) {
+    if (typeof group?.id !== 'string' || group.id.length === 0) {
+      return;
+    }
+
+    navigate(`/groups/${group.id}`, {
+      state: {
+        from: `${location.pathname}${location.search}`,
+      },
+    });
+  }
 
   return (
     <DashboardLayout
-      rooms={visibleRooms}
-      title="Interview Rooms"
-      description="Manage your AI interview sessions"
-      searchPlaceholder="Search by room name..."
+      rooms={[]}
+      recentItems={recentGroups}
+      recentItemsLabel="Recent Groups"
+      title="Groups"
+      description="Browse and paginate the interview groups owned by your account."
     >
       <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_320px]">
         <section className="space-y-6">
-          <div className="grid gap-6 md:grid-cols-2">
-            {visibleRooms.map((room) => {
-              const seed = getRoomWorkspaceSeed(room.id);
-              const metrics = getRoomMetricsFromApplicants(seed.applicants);
-              const roomStatus = getRoomStatusLabel(seed.applicants, seed.analysisStarted);
+          {groupCreationSuccessMessage.length > 0 ? (
+            <div className="rounded-2xl border border-emerald-200 bg-emerald-50 px-5 py-4 text-sm text-emerald-800">
+              {groupCreationSuccessMessage}
+            </div>
+          ) : null}
 
-              return (
-                <div
-                  key={room.id}
-                  onClick={() => navigate(`/rooms/${room.id}`)}
-                  className="cursor-pointer rounded-2xl border border-slate-200 bg-white p-6 shadow-sm transition hover:shadow-md"
-                >
-                  <div className="mb-4 flex items-start justify-between">
-                    <div>
-                      <h3 className="text-xl font-semibold text-slate-900">{room.name}</h3>
-                      <p className="mt-1 text-sm text-slate-500">Updated {room.updatedAt}</p>
-                    </div>
+          <GroupListSection
+            groups={groups}
+            isLoading={isLoadingGroups}
+            errorMessage={groupListErrorMessage}
+            onRetry={handleRetry}
+            onSelectGroup={handleSelectGroup}
+            totalGroups={groupListMeta.total}
+          />
 
-                    <span className="rounded-full bg-blue-50 px-3 py-1 text-xs font-semibold text-blue-600">
-                      {roomStatus}
-                    </span>
-                  </div>
-
-                  {metrics.total === 0 ? (
-                    <div className="mb-4 rounded-2xl border border-dashed border-slate-200 bg-slate-50 p-4">
-                      <p className="text-sm font-medium text-slate-800">No applicants yet</p>
-                      <p className="mt-1 text-sm text-slate-500">
-                        Add candidates to start batch analysis.
-                      </p>
-                    </div>
-                  ) : (
-                    <>
-                      <div className="mb-4">
-                        <div className="mb-2 flex items-center justify-between text-sm text-slate-600">
-                          <span>
-                            {metrics.completed}/{metrics.total} analyzed
-                          </span>
-                          <span>{metrics.progressPercent}%</span>
-                        </div>
-
-                        <div className="h-2 overflow-hidden rounded-full bg-slate-100">
-                          <div
-                            className="h-full rounded-full bg-blue-500 transition-all"
-                            style={{ width: `${metrics.progressPercent}%` }}
-                          />
-                        </div>
-                      </div>
-
-                      <div className="mb-4 grid grid-cols-2 gap-3 text-sm">
-                        <div className="rounded-xl bg-slate-50 px-3 py-2">
-                          <p className="text-slate-400">Applicants</p>
-                          <p className="font-semibold text-slate-900">{metrics.total}</p>
-                        </div>
-
-                        <div className="rounded-xl bg-slate-50 px-3 py-2">
-                          <p className="text-slate-400">In Progress</p>
-                          <p className="font-semibold text-slate-900">{metrics.inProgress}</p>
-                        </div>
-
-                        <div className="rounded-xl bg-slate-50 px-3 py-2">
-                          <p className="text-slate-400">Waiting</p>
-                          <p className="font-semibold text-slate-900">{metrics.waiting}</p>
-                        </div>
-
-                        <div className="rounded-xl bg-slate-50 px-3 py-2">
-                          <p className="text-slate-400">Failed</p>
-                          <p className="font-semibold text-slate-900">{metrics.failed}</p>
-                        </div>
-                      </div>
-                    </>
-                  )}
-
-                  <div className="flex flex-wrap gap-2">
-                    {room.stack?.map((tech) => (
-                      <span
-                        key={tech}
-                        className="rounded-lg bg-slate-100 px-2.5 py-1 text-xs font-medium text-slate-700"
-                      >
-                        {tech}
-                      </span>
-                    ))}
-
-                    {room.architecture ? (
-                      <span className="rounded-lg bg-slate-100 px-2.5 py-1 text-xs font-medium text-slate-700">
-                        {room.architecture}
-                      </span>
-                    ) : null}
-                  </div>
-                </div>
-              );
-            })}
-          </div>
+          <GroupPagination
+            page={groupListMeta.page}
+            size={groupListMeta.size}
+            total={groupListMeta.total}
+            isDisabled={isLoadingGroups}
+            onPageChange={handlePageChange}
+            onPageSizeChange={handlePageSizeChange}
+          />
         </section>
 
         <aside className="space-y-6">
           <AuthDebugPanel />
 
           <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
-            <h3 className="mb-4 text-lg font-semibold text-slate-900">Quick Start</h3>
+            <h3 className="mb-4 text-lg font-semibold text-slate-900">List State</h3>
 
-            <ol className="space-y-3 text-sm text-slate-600">
-              <li>1. Create a room</li>
-              <li>2. Add multiple applicants</li>
-              <li>3. Start batch analysis</li>
-            </ol>
+            <dl className="space-y-4 text-sm text-slate-600">
+              <div className="rounded-xl bg-slate-50 p-4">
+                <dt className="text-xs font-semibold uppercase tracking-wide text-slate-400">
+                  Current Page
+                </dt>
+                <dd className="mt-1 text-lg font-semibold text-slate-900">{groupListMeta.page}</dd>
+              </div>
 
-            <button
-              onClick={openCreateRoomModal}
-              className="mt-5 w-full rounded-xl bg-blue-500 py-3 font-medium text-white hover:bg-blue-600"
-            >
-              Create Room
-            </button>
+              <div className="rounded-xl bg-slate-50 p-4">
+                <dt className="text-xs font-semibold uppercase tracking-wide text-slate-400">
+                  Page Size
+                </dt>
+                <dd className="mt-1 text-lg font-semibold text-slate-900">{groupListMeta.size}</dd>
+              </div>
+
+              <div className="rounded-xl bg-slate-50 p-4">
+                <dt className="text-xs font-semibold uppercase tracking-wide text-slate-400">
+                  Total Groups
+                </dt>
+                <dd className="mt-1 text-lg font-semibold text-slate-900">{groupListMeta.total}</dd>
+              </div>
+            </dl>
           </div>
 
           <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
-            <h3 className="mb-4 text-lg font-semibold text-slate-900">Batch Overview</h3>
+            <h3 className="mb-4 text-lg font-semibold text-slate-900">Request Context</h3>
 
-            <div className="space-y-4 text-sm">
-              {visibleRooms.map((room) => {
-                const seed = getRoomWorkspaceSeed(room.id);
-                const metrics = getRoomMetricsFromApplicants(seed.applicants);
+            <div className="space-y-4 text-sm text-slate-600">
+              <div className="rounded-xl bg-slate-50 p-4">
+                <p className="text-xs font-semibold uppercase tracking-wide text-slate-400">
+                  Query String
+                </p>
+                <p className="mt-2 break-all font-medium text-slate-800">
+                  {normalizedSearchParamsString.length > 0 ? normalizedSearchParamsString : '-'}
+                </p>
+              </div>
 
-                return (
-                  <div key={`overview-${room.id}`} className="rounded-xl bg-slate-50 p-4">
-                    <p className="font-medium text-slate-800">{room.name}</p>
+              <div className="rounded-xl bg-slate-50 p-4">
+                <p className="text-xs font-semibold uppercase tracking-wide text-slate-400">
+                  Request ID
+                </p>
+                <p className="mt-2 break-all font-medium text-slate-800">
+                  {groupListMeta.requestId ?? 'Unavailable'}
+                </p>
+              </div>
 
-                    {metrics.total === 0 ? (
-                      <p className="mt-1 text-slate-500">No applicants registered yet</p>
-                    ) : (
-                      <p className="mt-1 text-slate-500">
-                        {metrics.completed}/{metrics.total} completed · {metrics.inProgress}{' '}
-                        processing
-                      </p>
-                    )}
-                  </div>
-                );
-              })}
+              <div className="rounded-xl bg-slate-50 p-4">
+                <p className="text-xs font-semibold uppercase tracking-wide text-slate-400">
+                  Next Step
+                </p>
+                <p className="mt-2 text-slate-800">
+                  Create-group submission now returns to this list and triggers a fresh fetch.
+                </p>
+              </div>
             </div>
           </div>
         </aside>

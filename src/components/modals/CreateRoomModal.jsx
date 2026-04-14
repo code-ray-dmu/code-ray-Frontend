@@ -1,55 +1,63 @@
 import { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import { CREATE_ROOM_EVENT } from "../../utils/createRoomModal";
-import { createRoom } from "../../utils/roomStore";
+import { getApiErrorCode } from "../../services/api/api-types.js";
+import { createGroup } from "../../services/groups/group-api.js";
+import { GROUP_CULTURE_FIT_PRIORITY_VALUES } from "../../services/groups/group-types.js";
 
-const techOptions = [
-  "React",
-  "TypeScript",
-  "JavaScript",
-  "Next.js",
-  "Vue",
-  "Spring Boot",
-  "JPA",
-  "Node.js",
-  "Express",
-  "Python",
-  "TensorFlow",
-  "PyTorch",
-  "MySQL",
-  "PostgreSQL",
-  "MongoDB",
-  "React Query",
-  "Redux",
-];
+function getCreateGroupValidationMessage(input) {
+  if (input.name.length === 0) {
+    return "Please enter a group name.";
+  }
 
-const architectureOptions = [
-  "SPA",
-  "MSA",
-  "Monolith",
-  "Pipeline",
-  "Serverless",
-  "MVC",
-];
+  if (input.techStacks.framework.length === 0) {
+    return "Please enter the framework used by this group.";
+  }
 
-const focusOptions = [
-  "Frontend Development",
-  "Code Quality",
-  "System Design",
-  "Performance",
-  "Testing",
-  "Collaboration",
-];
+  if (input.techStacks.db.length === 0) {
+    return "Please enter the database used by this group.";
+  }
+
+  if (!GROUP_CULTURE_FIT_PRIORITY_VALUES.includes(input.cultureFitPriority)) {
+    return "Please select a culture fit priority.";
+  }
+
+  return null;
+}
+
+function getCreateGroupErrorMessage(error) {
+  const errorCode = getApiErrorCode(error);
+
+  if (errorCode === "VALIDATION_ERROR") {
+    return "Please review the group details and try again.";
+  }
+
+  if (errorCode === "UNAUTHORIZED" || errorCode === "AUTH_TOKEN_EXPIRED") {
+    return "Your session is no longer valid. Please sign in again and retry.";
+  }
+
+  if (error?.response === undefined) {
+    return "Unable to reach the server. Please check your connection and try again.";
+  }
+
+  if (error instanceof Error && error.message.length > 0) {
+    return error.message;
+  }
+
+  return "Group creation failed. Please try again.";
+}
 
 export default function CreateRoomModal() {
+  const location = useLocation();
   const navigate = useNavigate();
   const [isOpen, setIsOpen] = useState(false);
-  const [roomName, setRoomName] = useState("");
-  const [techStackInput, setTechStackInput] = useState("");
-  const [selectedTechStacks, setSelectedTechStacks] = useState([]);
-  const [architecture, setArchitecture] = useState("");
-  const [culture, setCulture] = useState("");
-  const [primaryFocus, setPrimaryFocus] = useState("Frontend Development");
+  const [groupName, setGroupName] = useState("");
+  const [description, setDescription] = useState("");
+  const [framework, setFramework] = useState("");
+  const [database, setDatabase] = useState("");
+  const [cultureFitPriority, setCultureFitPriority] = useState("");
+  const [submitErrorMessage, setSubmitErrorMessage] = useState("");
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   useEffect(() => {
     const handleOpen = () => setIsOpen(true);
@@ -60,81 +68,99 @@ export default function CreateRoomModal() {
     };
   }, []);
 
-  const filteredTechOptions = techOptions.filter((option) => {
-    const normalizedInput = techStackInput.trim().toLowerCase();
+  function resetForm() {
+    setGroupName("");
+    setDescription("");
+    setFramework("");
+    setDatabase("");
+    setCultureFitPriority("");
+    setSubmitErrorMessage("");
+    setIsSubmitting(false);
+  }
 
-    if (!normalizedInput) {
-      return !selectedTechStacks.includes(option);
-    }
-
-    return (
-      option.toLowerCase().includes(normalizedInput) &&
-      !selectedTechStacks.includes(option)
-    );
-  });
-
-  const addTechStack = (tech) => {
-    if (!tech || selectedTechStacks.includes(tech)) {
+  const handleClose = () => {
+    if (isSubmitting) {
       return;
     }
 
-    setSelectedTechStacks((prev) => [...prev, tech]);
-    setTechStackInput("");
+    setIsOpen(false);
+    resetForm();
   };
 
-  const removeTechStack = (tech) => {
-    setSelectedTechStacks((prev) => prev.filter((item) => item !== tech));
-  };
+  async function handleCreateGroup() {
+    const normalizedInput = {
+      name: groupName.trim(),
+      description: description.trim().length > 0 ? description.trim() : null,
+      techStacks: {
+        framework: framework.trim(),
+        db: database.trim(),
+      },
+      cultureFitPriority,
+    };
 
-  const handleTechStackKeyDown = (event) => {
-    if (event.key === "Enter") {
-      event.preventDefault();
+    const validationMessage = getCreateGroupValidationMessage(normalizedInput);
 
-      const exactMatch = techOptions.find(
-        (option) => option.toLowerCase() === techStackInput.trim().toLowerCase()
-      );
-
-      if (exactMatch) {
-        addTechStack(exactMatch);
-        return;
-      }
-
-      if (techStackInput.trim()) {
-        addTechStack(techStackInput.trim());
-      }
+    if (validationMessage !== null) {
+      setSubmitErrorMessage(validationMessage);
+      return;
     }
 
-    if (
-      event.key === "Backspace" &&
-      !techStackInput &&
-      selectedTechStacks.length > 0
-    ) {
-      removeTechStack(selectedTechStacks[selectedTechStacks.length - 1]);
+    setSubmitErrorMessage("");
+    setIsSubmitting(true);
+
+    try {
+      const response = await createGroup(normalizedInput);
+      const backDestination =
+        location.pathname === "/dashboard"
+          ? `${location.pathname}${location.search}`
+          : typeof location.state?.from === "string"
+            ? location.state.from
+            : "/dashboard";
+
+      setIsOpen(false);
+      resetForm();
+      navigate(backDestination, {
+        replace: true,
+        state: {
+          createdGroupName: response.group.name,
+          refreshGroupsAt: Date.now(),
+        },
+      });
+    } catch (error) {
+      setSubmitErrorMessage(getCreateGroupErrorMessage(error));
+      setIsSubmitting(false);
     }
-  };
+  }
 
-  const handleClose = () => {
-    setIsOpen(false);
-  };
+  function handleGroupNameChange(event) {
+    setGroupName(event.target.value);
+    setSubmitErrorMessage("");
+  }
 
-  const handleCreateRoom = () => {
-    const newRoom = createRoom({
-      name: roomName || "New Interview Room",
-      primaryFocus,
-      stack: selectedTechStacks,
-      architecture,
-      culture,
-    });
+  function handleDescriptionChange(event) {
+    setDescription(event.target.value);
+    setSubmitErrorMessage("");
+  }
 
-    setIsOpen(false);
-    setRoomName("");
-    setTechStackInput("");
-    setSelectedTechStacks([]);
-    setArchitecture("");
-    setCulture("");
-    setPrimaryFocus("Frontend Development");
-    navigate(`/rooms/${newRoom.id}?tab=summary`);
-  };
+  function handleFrameworkChange(event) {
+    setFramework(event.target.value);
+    setSubmitErrorMessage("");
+  }
+
+  function handleDatabaseChange(event) {
+    setDatabase(event.target.value);
+    setSubmitErrorMessage("");
+  }
+
+  function handleCultureFitPriorityChange(event) {
+    setCultureFitPriority(event.target.value);
+    setSubmitErrorMessage("");
+  }
+
+  function handleSubmit(event) {
+    event.preventDefault();
+    void handleCreateGroup();
+  }
 
   if (!isOpen) {
     return null;
@@ -146,162 +172,122 @@ export default function CreateRoomModal() {
         <div className="flex items-center justify-between border-b border-slate-200 px-6 py-5">
           <div>
             <h2 className="text-xl font-semibold text-slate-900">
-              Create Interview Room
+              Create Group
             </h2>
             <p className="mt-1 text-sm text-slate-500">
-              Set up a room for generating tailored technical interview questions.
+              Add a new interview group and send the exact API contract expected by the server.
             </p>
           </div>
 
           <button
             onClick={handleClose}
-            className="text-2xl leading-none text-slate-400 hover:text-slate-600"
+            disabled={isSubmitting}
+            className="text-2xl leading-none text-slate-400 hover:text-slate-600 disabled:cursor-not-allowed disabled:text-slate-300"
           >
             ×
           </button>
         </div>
 
-        <div className="flex-1 space-y-6 overflow-y-auto px-6 py-6">
-          <div>
-            <label className="mb-2 block text-sm font-medium text-slate-700">
-              Room Name
-            </label>
-            <input
-              type="text"
-              value={roomName}
-              onChange={(event) => setRoomName(event.target.value)}
-              placeholder="e.g. Frontend Interview"
-              className="w-full rounded-xl border border-slate-200 px-4 py-3 text-sm outline-none focus:border-blue-400"
-            />
-          </div>
-
-          <div>
-            <label className="mb-2 block text-sm font-medium text-slate-700">
-              Primary Focus
-            </label>
-            <p className="mb-3 text-xs text-slate-500">
-              Choose the main evaluation goal for this room.
-            </p>
-            <div className="flex flex-wrap gap-2">
-              {focusOptions.map((option) => (
-                <button
-                  key={option}
-                  type="button"
-                  onClick={() => setPrimaryFocus(option)}
-                  className={`rounded-full px-3.5 py-2 text-sm font-medium transition ${
-                    primaryFocus === option
-                      ? "bg-blue-500 text-white shadow-sm"
-                      : "bg-slate-100 text-slate-600 hover:bg-slate-200"
-                  }`}
-                >
-                  {option}
-                </button>
-              ))}
-            </div>
-          </div>
-
-          <div className="grid grid-cols-2 gap-4">
+        <form onSubmit={handleSubmit} className="flex flex-1 flex-col">
+          <div className="flex-1 space-y-6 overflow-y-auto px-6 py-6">
             <div>
               <label className="mb-2 block text-sm font-medium text-slate-700">
-                Tech Stack
+                Group Name
               </label>
-              <div className="rounded-xl border border-slate-200 px-3 py-3 focus-within:border-blue-400">
-                <div className="flex flex-wrap items-center gap-2">
-                  {selectedTechStacks.map((tech) => (
-                    <span
-                      key={tech}
-                      className="inline-flex items-center gap-2 rounded-full bg-blue-50 px-3 py-1 text-sm font-medium text-blue-600"
-                    >
-                      {tech}
-                      <button
-                        type="button"
-                        onClick={() => removeTechStack(tech)}
-                        className="text-blue-400 hover:text-blue-600"
-                      >
-                        ×
-                      </button>
-                    </span>
-                  ))}
+              <input
+                type="text"
+                value={groupName}
+                onChange={handleGroupNameChange}
+                placeholder="e.g. backend-team"
+                className="w-full rounded-xl border border-slate-200 px-4 py-3 text-sm outline-none focus:border-blue-400"
+              />
+            </div>
 
-                  <input
-                    type="text"
-                    value={techStackInput}
-                    onChange={(event) => setTechStackInput(event.target.value)}
-                    onKeyDown={handleTechStackKeyDown}
-                    placeholder="e.g. React, TypeScript"
-                    className="min-w-[160px] flex-1 border-none bg-transparent text-sm outline-none"
-                  />
-                </div>
+            <div>
+              <label className="mb-2 block text-sm font-medium text-slate-700">
+                Description
+              </label>
+              <textarea
+                value={description}
+                onChange={handleDescriptionChange}
+                placeholder="e.g. msa 기반 팀"
+                rows={4}
+                className="w-full rounded-xl border border-slate-200 px-4 py-3 text-sm outline-none focus:border-blue-400"
+              />
+            </div>
+
+            <div className="grid gap-4 md:grid-cols-2">
+              <div>
+                <label className="mb-2 block text-sm font-medium text-slate-700">
+                  Framework
+                </label>
+                <input
+                  type="text"
+                  value={framework}
+                  onChange={handleFrameworkChange}
+                  placeholder="e.g. Spring"
+                  className="w-full rounded-xl border border-slate-200 px-4 py-3 text-sm outline-none focus:border-blue-400"
+                />
               </div>
 
-              {filteredTechOptions.length > 0 ? (
-                <div className="mt-3 rounded-xl border border-slate-200 bg-white p-2 shadow-sm">
-                  {filteredTechOptions.slice(0, 5).map((option) => (
-                    <button
-                      key={option}
-                      type="button"
-                      onClick={() => addTechStack(option)}
-                      className="flex w-full items-center rounded-lg px-3 py-2 text-left text-sm text-slate-600 hover:bg-slate-50"
-                    >
-                      {option}
-                    </button>
-                  ))}
-                </div>
-              ) : null}
+              <div>
+                <label className="mb-2 block text-sm font-medium text-slate-700">
+                  Database
+                </label>
+                <input
+                  type="text"
+                  value={database}
+                  onChange={handleDatabaseChange}
+                  placeholder="e.g. PostgreSQL"
+                  className="w-full rounded-xl border border-slate-200 px-4 py-3 text-sm outline-none focus:border-blue-400"
+                />
+              </div>
             </div>
 
             <div>
               <label className="mb-2 block text-sm font-medium text-slate-700">
-                Architecture
+                Culture Fit Priority
               </label>
-              <div className="mb-3 flex flex-wrap gap-2">
-                {architectureOptions.map((option) => (
-                  <button
-                    key={option}
-                    type="button"
-                    onClick={() => setArchitecture(option)}
-                    className={`rounded-full px-3 py-1.5 text-sm font-medium transition ${
-                      architecture === option
-                        ? "bg-blue-50 text-blue-600"
-                        : "bg-slate-100 text-slate-600 hover:bg-slate-200"
-                    }`}
-                  >
+              <select
+                value={cultureFitPriority}
+                onChange={handleCultureFitPriorityChange}
+                className="w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm outline-none focus:border-blue-400"
+              >
+                <option value="">Select a priority</option>
+                {GROUP_CULTURE_FIT_PRIORITY_VALUES.map((option) => (
+                  <option key={option} value={option}>
                     {option}
-                  </button>
+                  </option>
                 ))}
-              </div>
+              </select>
             </div>
+
+            {submitErrorMessage.length > 0 ? (
+              <div className="rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
+                {submitErrorMessage}
+              </div>
+            ) : null}
           </div>
 
-          <div>
-            <label className="mb-2 block text-sm font-medium text-slate-700">
-              Team Culture
-            </label>
-            <input
-              type="text"
-              value={culture}
-              onChange={(event) => setCulture(event.target.value)}
-              placeholder="e.g. Code review focused"
-              className="w-full rounded-xl border border-slate-200 px-4 py-3 text-sm outline-none focus:border-blue-400"
-            />
+          <div className="flex justify-end gap-3 border-t border-slate-200 px-6 py-5">
+            <button
+              type="button"
+              onClick={handleClose}
+              disabled={isSubmitting}
+              className="rounded-xl border border-slate-200 px-5 py-2.5 text-slate-600 hover:bg-slate-50 disabled:cursor-not-allowed disabled:text-slate-300"
+            >
+              Cancel
+            </button>
+
+            <button
+              type="submit"
+              disabled={isSubmitting}
+              className="rounded-xl bg-blue-500 px-5 py-2.5 font-medium text-white hover:bg-blue-600 disabled:cursor-not-allowed disabled:bg-slate-300"
+            >
+              {isSubmitting ? "Creating Group..." : "Create Group"}
+            </button>
           </div>
-        </div>
-
-        <div className="flex justify-end gap-3 border-t border-slate-200 px-6 py-5">
-          <button
-            onClick={handleClose}
-            className="rounded-xl border border-slate-200 px-5 py-2.5 text-slate-600 hover:bg-slate-50"
-          >
-            Cancel
-          </button>
-
-          <button
-            onClick={handleCreateRoom}
-            className="rounded-xl bg-blue-500 px-5 py-2.5 font-medium text-white hover:bg-blue-600"
-          >
-            Create Room
-          </button>
-        </div>
+        </form>
       </div>
     </div>
   );

@@ -3,7 +3,7 @@ import { openCreateRoomModal } from "../../utils/createRoomModal";
 
 const navItems = [
   {
-    label: "Rooms",
+    label: "Groups",
     to: "/dashboard",
     icon: (
       <svg className="w-5 h-5" viewBox="0 -960 960 960" fill="currentColor">
@@ -22,7 +22,7 @@ const navItems = [
   },
 ];
 
-export default function Sidebar({ rooms = [] }) {
+export default function Sidebar({ rooms = [], recentItemsLabel = "Recent Rooms" }) {
   return (
     <aside className="w-72 bg-white border-r px-6 py-8 flex flex-col">
       <div className="mb-8 pl-6">
@@ -33,7 +33,7 @@ export default function Sidebar({ rooms = [] }) {
         onClick={openCreateRoomModal}
         className="w-full mb-8 bg-blue-500 hover:bg-blue-600 text-white py-3 rounded-xl font-medium shadow-sm"
       >
-        + Create Room
+        + Create Group
       </button>
 
       <nav className="space-y-2 text-sm">
@@ -56,20 +56,22 @@ export default function Sidebar({ rooms = [] }) {
         ))}
       </nav>
 
-      <div className="mt-10">
-        <h3 className="mb-3 text-sm font-semibold text-slate-900">Recent Rooms</h3>
-        <div className="space-y-2">
-          {rooms.map((room) => (
-            <NavLink
-              key={room.id ?? room.name}
-              to={room.href ?? `/rooms/${room.id}`}
-              className="block rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm text-slate-700 transition hover:bg-slate-100"
-            >
-              {room.name}
-            </NavLink>
-          ))}
+      {rooms.length > 0 ? (
+        <div className="mt-10">
+          <h3 className="mb-3 text-sm font-semibold text-slate-900">{recentItemsLabel}</h3>
+          <div className="space-y-2">
+            {rooms.map((room) => (
+              <NavLink
+                key={room.id ?? room.name}
+                to={room.href ?? `/rooms/${room.id}`}
+                className="block rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm text-slate-700 transition hover:bg-slate-100"
+              >
+                {room.name}
+              </NavLink>
+            ))}
+          </div>
         </div>
-      </div>
+      ) : null}
     </aside>
   );
 }
