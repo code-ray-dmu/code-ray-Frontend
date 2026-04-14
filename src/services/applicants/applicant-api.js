@@ -1,5 +1,12 @@
 import { getApiClient } from '../api/api-client.js';
 import {
+  createMockApplicant as createMockApplicantData,
+  createMockRequestId,
+  getMockApplicantDetail as getMockApplicantDetailData,
+  getMockApplicants as getMockApplicantsData,
+  USE_API_MOCK,
+} from '../mock/mock-api-store.js';
+import {
   mapApplicantDetail,
   mapApplicantListItem,
   mapCreatedApplicant,
@@ -138,6 +145,15 @@ export function isGitHubProfileUrl(value) {
 }
 
 export async function createApplicant(input) {
+  if (USE_API_MOCK) {
+    return {
+      applicant: mapCreatedApplicant(createMockApplicantData(input)),
+      meta: mapRequestMeta({
+        request_id: createMockRequestId(),
+      }),
+    };
+  }
+
   const response = await getApiClient().post(APPLICANT_API_PREFIX, input);
 
   return {
@@ -148,6 +164,22 @@ export async function createApplicant(input) {
 
 export async function getApplicants(params = {}) {
   const normalizedParams = normalizeApplicantListParams(params);
+
+  if (USE_API_MOCK) {
+    const result = getMockApplicantsData(normalizedParams);
+
+    return {
+      applicants: result.applicants.map(mapApplicantListItem),
+      meta: mapPaginatedMeta({
+        page: normalizedParams.page,
+        size: normalizedParams.size,
+        total: result.total,
+        request_id: createMockRequestId(),
+      }),
+      params: normalizedParams,
+    };
+  }
+
   const response = await getApiClient().get(APPLICANT_API_PREFIX, {
     params: normalizedParams,
   });
@@ -162,6 +194,15 @@ export async function getApplicants(params = {}) {
 }
 
 export async function getApplicantDetail(applicantId) {
+  if (USE_API_MOCK) {
+    return {
+      applicant: mapApplicantDetail(getMockApplicantDetailData(applicantId)),
+      meta: mapRequestMeta({
+        request_id: createMockRequestId(),
+      }),
+    };
+  }
+
   const response = await getApiClient().get(`${APPLICANT_API_PREFIX}/${applicantId}`);
 
   return {

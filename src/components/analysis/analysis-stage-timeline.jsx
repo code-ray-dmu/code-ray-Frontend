@@ -16,25 +16,25 @@ function getStageStateClassName(state) {
 
 function getStageStateLabel(state) {
   if (state === 'done') {
-    return 'Done';
+    return '완료';
   }
 
   if (state === 'current') {
-    return 'Current';
+    return '진행 중';
   }
 
   if (state === 'failed') {
-    return 'Failed';
+    return '실패';
   }
 
-  return 'Pending';
+  return '대기 중';
 }
 
 export function AnalysisStageTimeline({ stages }) {
   if (!Array.isArray(stages) || stages.length === 0) {
     return (
       <div className="rounded-2xl border border-dashed border-slate-200 bg-slate-50 px-5 py-4 text-sm text-slate-500">
-        Stage information will appear once the analysis begins.
+        분석이 시작되면 단계 정보가 표시됩니다.
       </div>
     );
   }
@@ -49,7 +49,7 @@ export function AnalysisStageTimeline({ stages }) {
           <div className="flex items-start justify-between gap-4">
             <div className="min-w-0">
               <p className="text-xs font-semibold uppercase tracking-wide opacity-70">
-                Stage {index + 1}
+                단계 {index + 1}
               </p>
               <p className="mt-1 text-sm font-semibold">{stage.label}</p>
               {typeof stage.description === 'string' && stage.description.length > 0 ? (

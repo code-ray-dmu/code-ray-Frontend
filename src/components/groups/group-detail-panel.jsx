@@ -9,6 +9,23 @@ function DetailItem({ label, value, shouldWrap = false }) {
   );
 }
 
+function formatCreatedAt(createdAt) {
+  if (typeof createdAt !== 'string' || createdAt.length === 0) {
+    return '-';
+  }
+
+  const parsedDate = new Date(createdAt);
+
+  if (Number.isNaN(parsedDate.getTime())) {
+    return createdAt;
+  }
+
+  return new Intl.DateTimeFormat('en-US', {
+    dateStyle: 'medium',
+    timeStyle: 'short',
+  }).format(parsedDate);
+}
+
 export function GroupDetailPanel({ group }) {
   return (
     <section className="space-y-6">
@@ -30,7 +47,7 @@ export function GroupDetailPanel({ group }) {
         </div>
 
         <div className="mt-8 grid gap-4 md:grid-cols-2">
-          <DetailItem label="Group ID" value={group.id ?? '-'} shouldWrap />
+          <DetailItem label="Created At" value={formatCreatedAt(group.createdAt)} />
           <DetailItem label="Framework" value={group.techStacks.framework || '-'} />
           <DetailItem label="Database" value={group.techStacks.db || '-'} />
           <DetailItem
@@ -42,4 +59,3 @@ export function GroupDetailPanel({ group }) {
     </section>
   );
 }
-

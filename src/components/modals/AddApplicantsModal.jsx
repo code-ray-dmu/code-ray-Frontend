@@ -71,8 +71,8 @@ export default function AddApplicantsModal({
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/40 px-4">
-      <div className="w-full max-w-5xl rounded-3xl bg-white shadow-2xl">
-        <div className="flex items-center justify-between border-b border-slate-200 px-6 py-5">
+      <div className="flex max-h-[calc(100vh-2rem)] w-full max-w-5xl flex-col overflow-hidden rounded-3xl bg-white shadow-2xl">
+        <div className="flex flex-wrap items-start justify-between gap-3 border-b border-slate-200 px-6 py-5">
           <div>
             <h2 className="text-xl font-semibold text-slate-900">
               Add Applicants
@@ -90,7 +90,7 @@ export default function AddApplicantsModal({
           </button>
         </div>
 
-        <div className="px-6 py-6">
+        <div className="flex-1 overflow-y-auto px-6 py-6">
           <div className="mb-4 flex flex-wrap items-center gap-3">
             <button
               onClick={handleAddRow}
@@ -110,61 +110,63 @@ export default function AddApplicantsModal({
             </label>
           </div>
 
-          <div className="overflow-hidden rounded-2xl border border-slate-200">
-            <div className="grid grid-cols-[1fr_1.2fr_1.4fr_100px] gap-3 border-b border-slate-200 bg-slate-50 px-4 py-3 text-xs font-semibold uppercase tracking-wide text-slate-500">
-              <div>Name</div>
-              <div>Email</div>
-              <div>GitHub URL</div>
-              <div>Action</div>
-            </div>
+          <div className="overflow-x-auto rounded-2xl border border-slate-200">
+            <div className="min-w-[760px]">
+              <div className="grid grid-cols-[1fr_1.2fr_1.4fr_100px] gap-3 border-b border-slate-200 bg-slate-50 px-4 py-3 text-xs font-semibold uppercase tracking-wide text-slate-500">
+                <div>Name</div>
+                <div>Email</div>
+                <div>GitHub URL</div>
+                <div>Action</div>
+              </div>
 
-            <div>
-              {rows.map((row, index) => (
-                <div
-                  key={row.id}
-                  className="grid grid-cols-[1fr_1.2fr_1.4fr_100px] gap-3 border-b border-slate-100 px-4 py-3 last:border-b-0"
-                >
-                  <input
-                    value={row.name}
-                    onChange={(e) =>
-                      handleChangeRow(row.id, "name", e.target.value)
-                    }
-                    placeholder="김개발"
-                    className="rounded-xl border border-slate-200 px-3 py-2 text-sm outline-none focus:border-blue-400"
-                  />
-
-                  <input
-                    value={row.email}
-                    onChange={(e) =>
-                      handleChangeRow(row.id, "email", e.target.value)
-                    }
-                    placeholder="dev@email.com"
-                    className="rounded-xl border border-slate-200 px-3 py-2 text-sm outline-none focus:border-blue-400"
-                  />
-
-                  <input
-                    value={row.githubUrl}
-                    onChange={(e) =>
-                      handleChangeRow(row.id, "githubUrl", e.target.value)
-                    }
-                    placeholder="github.com/username/repo"
-                    className="rounded-xl border border-slate-200 px-3 py-2 text-sm outline-none focus:border-blue-400"
-                  />
-
-                  <button
-                    onClick={() => handleRemoveRow(row.id)}
-                    disabled={rows.length === 1 && index === 0}
-                    className="rounded-xl border border-slate-200 px-3 py-2 text-sm font-medium text-slate-600 hover:bg-slate-50 disabled:cursor-not-allowed disabled:text-slate-300"
+              <div>
+                {rows.map((row, index) => (
+                  <div
+                    key={row.id}
+                    className="grid grid-cols-[1fr_1.2fr_1.4fr_100px] gap-3 border-b border-slate-100 px-4 py-3 last:border-b-0"
                   >
-                    Delete
-                  </button>
-                </div>
-              ))}
+                    <input
+                      value={row.name}
+                      onChange={(e) =>
+                        handleChangeRow(row.id, "name", e.target.value)
+                      }
+                      placeholder="김개발"
+                      className="min-w-0 rounded-xl border border-slate-200 px-3 py-2 text-sm outline-none focus:border-blue-400"
+                    />
+
+                    <input
+                      value={row.email}
+                      onChange={(e) =>
+                        handleChangeRow(row.id, "email", e.target.value)
+                      }
+                      placeholder="dev@email.com"
+                      className="min-w-0 rounded-xl border border-slate-200 px-3 py-2 text-sm outline-none focus:border-blue-400"
+                    />
+
+                    <input
+                      value={row.githubUrl}
+                      onChange={(e) =>
+                        handleChangeRow(row.id, "githubUrl", e.target.value)
+                      }
+                      placeholder="github.com/username/repo"
+                      className="min-w-0 rounded-xl border border-slate-200 px-3 py-2 text-sm outline-none focus:border-blue-400"
+                    />
+
+                    <button
+                      onClick={() => handleRemoveRow(row.id)}
+                      disabled={rows.length === 1 && index === 0}
+                      className="w-full rounded-xl border border-slate-200 px-3 py-2 text-sm font-medium text-slate-600 hover:bg-slate-50 disabled:cursor-not-allowed disabled:text-slate-300"
+                    >
+                      Delete
+                    </button>
+                  </div>
+                ))}
+              </div>
             </div>
           </div>
         </div>
 
-        <div className="flex items-center justify-end gap-3 border-t border-slate-200 px-6 py-5">
+        <div className="flex flex-wrap items-center justify-end gap-3 border-t border-slate-200 px-6 py-5">
           <button
             onClick={onClose}
             className="rounded-xl border border-slate-200 px-4 py-2 text-sm font-medium text-slate-700 hover:bg-slate-50"

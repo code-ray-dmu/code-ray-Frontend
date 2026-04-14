@@ -1,60 +1,165 @@
-function formatCreatedAt(createdAt) {
+function formatRelativeUpdatedAt(createdAt) {
   if (typeof createdAt !== 'string' || createdAt.length === 0) {
-    return 'Created date unavailable';
+    return 'Recently updated';
   }
 
-  const createdDate = new Date(createdAt);
+  const createdTime = new Date(createdAt).getTime();
 
-  if (Number.isNaN(createdDate.getTime())) {
-    return createdAt;
+  if (Number.isNaN(createdTime)) {
+    return 'Recently updated';
   }
 
-  return new Intl.DateTimeFormat('en-US', {
-    dateStyle: 'medium',
-    timeStyle: 'short',
-  }).format(createdDate);
+  const diffMs = Date.now() - createdTime;
+  const diffMinutes = Math.max(1, Math.floor(diffMs / (1000 * 60)));
+
+  if (diffMinutes < 60) {
+    return `Updated ${diffMinutes}m ago`;
+  }
+
+  const diffHours = Math.floor(diffMinutes / 60);
+
+  if (diffHours < 24) {
+    return `Updated ${diffHours}h ago`;
+  }
+
+  const diffDays = Math.floor(diffHours / 24);
+
+  return `Updated ${diffDays}d ago`;
+}
+
+function getGroupStatusLabel(group) {
+  if (typeof group.applicantCount === 'number' && group.applicantCount > 0) {
+    return 'Ready';
+  }
+
+  return 'Draft';
+}
+
+function getGroupStatusClassName(group) {
+  if (getGroupStatusLabel(group) === 'Ready') {
+    return 'bg-blue-50 text-blue-600';
+  }
+
+  return 'bg-slate-100 text-slate-600';
+}
+
+function getGroupTags(group) {
+  return [
+    group.techStacks?.framework,
+    group.techStacks?.db,
+    group.cultureFitPriority,
+  ].filter((value) => typeof value === 'string' && value.length > 0);
+}
+
+function getGroupDescription(group) {
+  if (typeof group.description === 'string' && group.description.length > 0) {
+    return group.description;
+  }
+
+  return 'A focused interview group ready for applicant analysis and question generation.';
+}
+
+function getBottomMetrics(group) {
+  return [
+    {
+      label: 'Applicants',
+      value:
+        typeof group.applicantCount === 'number' ? `${group.applicantCount} Applicants` : null,
+    },
+    {
+      label: 'Priority',
+      value:
+        typeof group.cultureFitPriority === 'string' && group.cultureFitPriority.length > 0
+          ? group.cultureFitPriority
+          : null,
+    },
+  ].filter((metric) => metric.value !== null);
 }
 
 function LoadingGroupCard({ index }) {
   return (
     <div
       key={`loading-group-${index}`}
-      className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm"
+      className="min-h-[260px] rounded-2xl border border-slate-200/80 bg-white p-6 shadow-[0_10px_24px_rgba(15,23,42,0.08)]"
     >
-      <div className="animate-pulse space-y-4">
-        <div className="h-6 w-2/3 rounded bg-slate-200" />
-        <div className="h-4 w-1/2 rounded bg-slate-200" />
-        <div className="h-4 w-full rounded bg-slate-100" />
+      <div className="flex h-full animate-pulse flex-col space-y-4">
+        <div className="flex items-start justify-between gap-4">
+          <div className="space-y-2">
+            <div className="h-6 w-40 rounded bg-slate-200" />
+            <div className="h-4 w-28 rounded bg-slate-100" />
+          </div>
+          <div className="h-9 w-20 rounded-full bg-slate-100" />
+        </div>
+
+        <div className="flex min-h-[2.5rem] gap-3">
+          <div className="h-9 w-20 rounded-xl bg-slate-100" />
+          <div className="h-9 w-28 rounded-xl bg-slate-100" />
+          <div className="h-9 w-24 rounded-xl bg-slate-100" />
+        </div>
+
+        <div className="min-h-[3.5rem] space-y-3">
+          <div className="h-5 w-full rounded bg-slate-100" />
+          <div className="h-5 w-2/3 rounded bg-slate-100" />
+        </div>
+
+        <div className="mt-auto flex items-center justify-between pt-4">
+          <div className="h-5 w-28 rounded bg-slate-100" />
+          <div className="h-5 w-20 rounded bg-slate-100" />
+        </div>
       </div>
     </div>
   );
 }
 
 function GroupCard({ group }) {
+  const tags = getGroupTags(group);
+  const metrics = getBottomMetrics(group);
+
   return (
-    <article className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm transition hover:shadow-md">
+    <article className="flex h-full min-h-[260px] flex-col rounded-2xl border border-slate-200/80 bg-white p-6 shadow-[0_12px_28px_rgba(15,23,42,0.08)] transition duration-200 hover:-translate-y-0.5 hover:shadow-[0_14px_34px_rgba(15,23,42,0.11)]">
       <div className="flex items-start justify-between gap-4">
         <div className="min-w-0">
-          <h3 className="truncate text-xl font-semibold text-slate-900">{group.name ?? 'Untitled Group'}</h3>
-          <p className="mt-1 text-sm text-slate-500">Created {formatCreatedAt(group.createdAt)}</p>
+          <h3 className="truncate text-2xl font-semibold tracking-tight text-slate-950">
+            {group.name ?? 'Untitled Group'}
+          </h3>
+          <p className="mt-2 text-sm font-medium text-slate-400">
+            {formatRelativeUpdatedAt(group.createdAt)}
+          </p>
         </div>
 
-        <span className="rounded-full bg-blue-50 px-3 py-1 text-xs font-semibold text-blue-600">
-          Group
+        <span
+          className={`rounded-full px-3 py-1.5 text-sm font-semibold ${getGroupStatusClassName(
+            group,
+          )}`}
+        >
+          {getGroupStatusLabel(group)}
         </span>
       </div>
 
-      <dl className="mt-5 grid gap-3 text-sm text-slate-600 md:grid-cols-2">
-        <div className="rounded-xl bg-slate-50 px-4 py-3">
-          <dt className="text-xs font-medium uppercase tracking-wide text-slate-400">Group ID</dt>
-          <dd className="mt-1 break-all font-medium text-slate-800">{group.id ?? '-'}</dd>
-        </div>
+      <div className="mt-6 flex min-h-[2.5rem] flex-wrap gap-2">
+        {tags.map((tag) => (
+          <span
+            key={tag}
+            className="rounded-xl bg-slate-100 px-3 py-1.5 text-sm font-medium text-slate-700"
+          >
+            {tag}
+          </span>
+        ))}
+      </div>
 
-        <div className="rounded-xl bg-slate-50 px-4 py-3">
-          <dt className="text-xs font-medium uppercase tracking-wide text-slate-400">Created At</dt>
-          <dd className="mt-1 font-medium text-slate-800">{formatCreatedAt(group.createdAt)}</dd>
+      <p className="mt-6 min-h-[3.5rem] line-clamp-2 text-base font-medium leading-7 text-slate-700">
+        {getGroupDescription(group)}
+      </p>
+
+      {metrics.length > 0 ? (
+        <div className="mt-auto flex flex-wrap items-center justify-between gap-3 pt-8 text-sm text-slate-500">
+          {metrics.map((metric) => (
+            <div key={metric.label} className="font-medium text-slate-500">
+              {metric.value}
+            </div>
+          ))}
         </div>
-      </dl>
+      ) : null}
     </article>
   );
 }
@@ -128,7 +233,7 @@ export function GroupListSection({
             key={group.id ?? group.name}
             type="button"
             onClick={() => onSelectGroup(group)}
-            className="text-left"
+            className="h-full text-left"
           >
             <GroupCard group={group} />
           </button>

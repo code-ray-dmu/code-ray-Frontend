@@ -203,6 +203,45 @@ export function getAnalysisSummary(analysisRuns, lastUpdatedAt) {
   };
 }
 
+export function getAnalysisProgressPercent(summary) {
+  if (summary === null) {
+    return 0;
+  }
+
+  if (summary.status === ANALYSIS_STATUS_VALUES.COMPLETED) {
+    return 100;
+  }
+
+  if (summary.status === ANALYSIS_STATUS_VALUES.QUEUED) {
+    return 8;
+  }
+
+  const stageOrder = [...ANALYSIS_STAGE_ORDER];
+  const currentStageIndex = stageOrder.indexOf(summary.currentStage);
+
+  if (
+    typeof summary.currentStage === 'string' &&
+    summary.currentStage.length > 0 &&
+    currentStageIndex === -1
+  ) {
+    stageOrder.push(summary.currentStage);
+  }
+
+  const normalizedStageIndex = stageOrder.indexOf(summary.currentStage);
+
+  if (normalizedStageIndex === -1) {
+    return summary.status === ANALYSIS_STATUS_VALUES.FAILED ? 20 : 15;
+  }
+
+  const rawProgress = Math.round(((normalizedStageIndex + 1) / stageOrder.length) * 100);
+
+  if (summary.status === ANALYSIS_STATUS_VALUES.FAILED) {
+    return rawProgress;
+  }
+
+  return Math.min(95, Math.max(15, rawProgress));
+}
+
 export function buildStageTimeline(summary) {
   if (summary === null) {
     return [];
