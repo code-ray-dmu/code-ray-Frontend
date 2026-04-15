@@ -1,14 +1,14 @@
 const ANALYSIS_STEPS = [
-  "Waiting",
-  "GitHub validation",
-  "Repository structure analysis",
-  "Key file extraction",
-  "Tech stack detection",
-  "LLM request",
-  "Question generation",
-  "Scoring",
-  "Summary formatting",
-  "Completed",
+  "대기 중",
+  "GitHub 검증",
+  "저장소 구조 분석",
+  "핵심 파일 추출",
+  "기술 스택 감지",
+  "LLM 요청",
+  "질문 생성",
+  "점수 계산",
+  "요약 정리",
+  "완료",
 ];
 
 export const roomWorkspaceData = {
@@ -21,7 +21,7 @@ export const roomWorkspaceData = {
         email: "dev1@email.com",
         githubUrl: "github.com/devkim",
         status: "completed",
-        currentStep: "Completed",
+        currentStep: "완료",
         currentStepIndex: 10,
         totalSteps: 10,
         progress: 100,
@@ -35,7 +35,7 @@ export const roomWorkspaceData = {
         email: "dev2@email.com",
         githubUrl: "github.com/choi-react",
         status: "processing",
-        currentStep: "Question generation",
+        currentStep: "질문 생성",
         currentStepIndex: 7,
         totalSteps: 10,
         progress: 70,
@@ -49,7 +49,7 @@ export const roomWorkspaceData = {
         email: "dev3@email.com",
         githubUrl: "github.com/frontendlee",
         status: "processing",
-        currentStep: "Repository structure analysis",
+        currentStep: "저장소 구조 분석",
         currentStepIndex: 3,
         totalSteps: 10,
         progress: 30,
@@ -63,7 +63,7 @@ export const roomWorkspaceData = {
         email: "dev4@email.com",
         githubUrl: "github.com/ui-jung",
         status: "waiting",
-        currentStep: "Waiting",
+        currentStep: "대기 중",
         currentStepIndex: 1,
         totalSteps: 10,
         progress: 0,
@@ -89,7 +89,7 @@ export const roomWorkspaceData = {
         email: "backend1@email.com",
         githubUrl: "github.com/parkserver",
         status: "completed",
-        currentStep: "Completed",
+        currentStep: "완료",
         currentStepIndex: 10,
         totalSteps: 10,
         progress: 100,
@@ -103,7 +103,7 @@ export const roomWorkspaceData = {
         email: "backend2@email.com",
         githubUrl: "github.com/backendlee",
         status: "processing",
-        currentStep: "Scoring",
+        currentStep: "점수 계산",
         currentStepIndex: 8,
         totalSteps: 10,
         progress: 80,
@@ -117,7 +117,7 @@ export const roomWorkspaceData = {
         email: "backend3@email.com",
         githubUrl: "github.com/choi-api",
         status: "failed",
-        currentStep: "GitHub validation",
+        currentStep: "GitHub 검증",
         currentStepIndex: 2,
         totalSteps: 10,
         progress: 10,
@@ -142,7 +142,7 @@ export const roomWorkspaceData = {
         email: "ai1@email.com",
         githubUrl: "github.com/aimin",
         status: "completed",
-        currentStep: "Completed",
+        currentStep: "완료",
         currentStepIndex: 10,
         totalSteps: 10,
         progress: 100,
@@ -156,11 +156,11 @@ export const roomWorkspaceData = {
         email: "ai2@email.com",
         githubUrl: "github.com/modelpark",
         status: "processing",
-        currentStep: "Question generation",
+        currentStep: "질문 생성",
         currentStepIndex: 7,
         totalSteps: 10,
         progress: 70,
-        recentLog: "모델 파이프라인 관련 follow-up을 정리 중입니다.",
+        recentLog: "모델 파이프라인 관련 후속 질문을 정리 중입니다.",
         score: null,
         generatedQuestions: 6,
       },
@@ -209,7 +209,7 @@ export function createEmptyApplicant() {
     email: "",
     githubUrl: "",
     status: "draft",
-    currentStep: "Waiting",
+    currentStep: "대기 중",
     currentStepIndex: 1,
     totalSteps: ANALYSIS_STEPS.length,
     progress: 0,
@@ -228,7 +228,7 @@ export function normalizeApplicant(applicant) {
     email: applicant.email ?? "",
     githubUrl: applicant.githubUrl ?? "",
     status: applicant.status ?? "waiting",
-    currentStep: applicant.currentStep ?? "Waiting",
+    currentStep: applicant.currentStep ?? "대기 중",
     currentStepIndex: applicant.currentStepIndex ?? 1,
     totalSteps: applicant.totalSteps ?? ANALYSIS_STEPS.length,
     progress: applicant.progress ?? 0,
@@ -278,11 +278,11 @@ export function getRoomMetricsFromApplicants(applicants = []) {
 export function getRoomStatusLabel(applicants = [], analysisStarted = false) {
   const metrics = getRoomMetricsFromApplicants(applicants);
 
-  if (metrics.total === 0) return "Empty";
-  if (!analysisStarted) return "Draft";
-  if (metrics.inProgress > 0 || metrics.waiting > 0) return "In Progress";
-  if (metrics.completed + metrics.failed === metrics.total) return "Completed";
-  return "Ready";
+  if (metrics.total === 0) return "비어 있음";
+  if (!analysisStarted) return "초안";
+  if (metrics.inProgress > 0 || metrics.waiting > 0) return "진행 중";
+  if (metrics.completed + metrics.failed === metrics.total) return "완료";
+  return "준비 완료";
 }
 
 export function getAnalysisSteps(applicant) {
@@ -301,23 +301,23 @@ export function getAnalysisSteps(applicant) {
 
 export function getNextProcessingLog(stepLabel, applicantName) {
   switch (stepLabel) {
-    case "GitHub validation":
+    case "GitHub 검증":
       return `${applicantName} - GitHub 저장소 연결을 확인했습니다.`;
-    case "Repository structure analysis":
+    case "저장소 구조 분석":
       return `${applicantName} - 레포지토리 파일 구조를 분석 중입니다.`;
-    case "Key file extraction":
+    case "핵심 파일 추출":
       return `${applicantName} - 핵심 파일을 추출하고 있습니다.`;
-    case "Tech stack detection":
+    case "기술 스택 감지":
       return `${applicantName} - 기술 스택을 감지했습니다.`;
-    case "LLM request":
+    case "LLM 요청":
       return `${applicantName} - LLM으로 분석 데이터를 전송했습니다.`;
-    case "Question generation":
+    case "질문 생성":
       return `${applicantName} - 면접 질문을 생성하고 있습니다.`;
-    case "Scoring":
+    case "점수 계산":
       return `${applicantName} - 평가 기준과 점수를 계산 중입니다.`;
-    case "Summary formatting":
-      return `${applicantName} - 개인 summary를 정리하고 있습니다.`;
-    case "Completed":
+    case "요약 정리":
+      return `${applicantName} - 개인 요약을 정리하고 있습니다.`;
+    case "완료":
       return `${applicantName} - 분석이 완료되었습니다.`;
     default:
       return `${applicantName} - 분석 대기 중입니다.`;

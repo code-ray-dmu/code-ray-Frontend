@@ -10,11 +10,11 @@ function normalizeEmail(email) {
 
 function getLoginValidationMessage(input) {
   if (input.email.length === 0) {
-    return 'Please enter your email.';
+    return '이메일을 입력해 주세요.';
   }
 
   if (input.password.length === 0) {
-    return 'Please enter your password.';
+    return '비밀번호를 입력해 주세요.';
   }
 
   return null;
@@ -32,22 +32,22 @@ function getSignInErrorMessage(error) {
   const errorCode = getApiErrorCode(error);
 
   if (errorCode === 'AUTH_INVALID_CREDENTIALS') {
-    return 'Invalid email or password.';
+    return '이메일 또는 비밀번호가 올바르지 않습니다.';
   }
 
   if (errorCode === 'VALIDATION_ERROR') {
-    return 'Please review your input and try again.';
+    return '입력한 내용을 다시 확인해 주세요.';
   }
 
   if (axios.isAxiosError(error) && error.response === undefined) {
-    return 'Unable to reach the server. Please check your connection and try again.';
+    return '서버에 연결할 수 없습니다. 네트워크 상태를 확인한 뒤 다시 시도해 주세요.';
   }
 
   if (error instanceof Error && error.message.length > 0) {
     return error.message;
   }
 
-  return 'Sign in failed. Please try again.';
+  return '로그인에 실패했습니다. 다시 시도해 주세요.';
 }
 
 export function LoginPage() {
@@ -113,13 +113,13 @@ export function LoginPage() {
       <div className="w-full max-w-md rounded-2xl bg-white p-8 shadow-md">
         <div className="mb-6 text-center">
           <img src="/logo.png" alt="Code-Ray" className="mx-auto h-14 w-auto" />
-          <p className="mt-2 text-sm text-gray-500">Welcome back</p>
+          <p className="mt-2 text-sm text-gray-500">다시 오신 것을 환영합니다</p>
         </div>
 
         <form className="space-y-4" onSubmit={handleSubmit}>
           <input
             type="email"
-            placeholder="Email"
+            placeholder="이메일"
             className="w-full rounded-lg border px-4 py-2 outline-none focus:ring-2 focus:ring-blue-400"
             value={email}
             onChange={handleEmailChange}
@@ -127,7 +127,7 @@ export function LoginPage() {
 
           <input
             type="password"
-            placeholder="Password"
+            placeholder="비밀번호"
             className="w-full rounded-lg border px-4 py-2 outline-none focus:ring-2 focus:ring-blue-400"
             value={password}
             onChange={handlePasswordChange}
@@ -146,20 +146,20 @@ export function LoginPage() {
             disabled={isSubmitting}
             className="mt-6 w-full rounded-lg bg-blue-500 py-2 font-semibold text-white hover:bg-blue-600 disabled:cursor-not-allowed disabled:bg-slate-300"
           >
-            {isSubmitting ? 'Signing In...' : 'Sign In'}
+            {isSubmitting ? '로그인 중...' : '로그인'}
           </button>
         </form>
 
         <div className="mt-4 text-center text-sm text-gray-500">
-          Don&apos;t have an account?{' '}
+          아직 계정이 없으신가요?{' '}
           <span onClick={() => navigate('/signup')} className="cursor-pointer text-blue-500">
-            Sign up
+            회원가입
           </span>
         </div>
 
         <div className="mt-2 text-center text-xs text-gray-400">
           <span onClick={() => navigate('/')} className="cursor-pointer hover:underline">
-            Back to Home
+            홈으로 돌아가기
           </span>
         </div>
       </div>

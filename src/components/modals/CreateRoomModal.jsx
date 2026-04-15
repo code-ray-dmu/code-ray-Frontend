@@ -5,21 +5,37 @@ import { getApiErrorCode } from "../../services/api/api-types.js";
 import { createGroup } from "../../services/groups/group-api.js";
 import { GROUP_CULTURE_FIT_PRIORITY_VALUES } from "../../services/groups/group-types.js";
 
+function getCultureFitPriorityLabel(option) {
+  if (option === "HIGH") {
+    return "높음";
+  }
+
+  if (option === "MEDIUM") {
+    return "보통";
+  }
+
+  if (option === "LOW") {
+    return "낮음";
+  }
+
+  return option;
+}
+
 function getCreateGroupValidationMessage(input) {
   if (input.name.length === 0) {
-    return "Please enter a group name.";
+    return "그룹 이름을 입력해 주세요.";
   }
 
   if (input.techStacks.framework.length === 0) {
-    return "Please enter the framework used by this group.";
+    return "이 그룹에서 사용하는 프레임워크를 입력해 주세요.";
   }
 
   if (input.techStacks.db.length === 0) {
-    return "Please enter the database used by this group.";
+    return "이 그룹에서 사용하는 데이터베이스를 입력해 주세요.";
   }
 
   if (!GROUP_CULTURE_FIT_PRIORITY_VALUES.includes(input.cultureFitPriority)) {
-    return "Please select a culture fit priority.";
+    return "컬처 핏 우선순위를 선택해 주세요.";
   }
 
   return null;
@@ -29,22 +45,22 @@ function getCreateGroupErrorMessage(error) {
   const errorCode = getApiErrorCode(error);
 
   if (errorCode === "VALIDATION_ERROR") {
-    return "Please review the group details and try again.";
+    return "그룹 정보를 다시 확인한 뒤 시도해 주세요.";
   }
 
   if (errorCode === "UNAUTHORIZED" || errorCode === "AUTH_TOKEN_EXPIRED") {
-    return "Your session is no longer valid. Please sign in again and retry.";
+    return "세션이 만료되었습니다. 다시 로그인한 뒤 시도해 주세요.";
   }
 
   if (error?.response === undefined) {
-    return "Unable to reach the server. Please check your connection and try again.";
+    return "서버에 연결할 수 없습니다. 네트워크 상태를 확인한 뒤 다시 시도해 주세요.";
   }
 
   if (error instanceof Error && error.message.length > 0) {
     return error.message;
   }
 
-  return "Group creation failed. Please try again.";
+  return "그룹 생성에 실패했습니다. 다시 시도해 주세요.";
 }
 
 export default function CreateRoomModal() {
@@ -172,10 +188,10 @@ export default function CreateRoomModal() {
         <div className="flex items-center justify-between border-b border-slate-200 px-6 py-5">
           <div>
             <h2 className="text-xl font-semibold text-slate-900">
-              Create Group
+              그룹 만들기
             </h2>
             <p className="mt-1 text-sm text-slate-500">
-              Add a new interview group and send the exact API contract expected by the server.
+              새 면접 그룹을 추가하고 필요한 팀 정보를 입력해 주세요.
             </p>
           </div>
 
@@ -192,20 +208,20 @@ export default function CreateRoomModal() {
           <div className="min-h-0 flex-1 space-y-6 overflow-y-auto px-6 py-6">
             <div>
               <label className="mb-2 block text-sm font-medium text-slate-700">
-                Group Name
+                그룹 이름
               </label>
               <input
                 type="text"
                 value={groupName}
                 onChange={handleGroupNameChange}
-                placeholder="e.g. backend-team"
+                placeholder="예: 백엔드 팀 면접"
                 className="w-full rounded-xl border border-slate-200 px-4 py-3 text-sm outline-none focus:border-blue-400"
               />
             </div>
 
             <div>
               <label className="mb-2 block text-sm font-medium text-slate-700">
-                Description
+                설명
               </label>
               <textarea
                 value={description}
@@ -219,7 +235,7 @@ export default function CreateRoomModal() {
             <div className="grid gap-4 md:grid-cols-2">
               <div>
                 <label className="mb-2 block text-sm font-medium text-slate-700">
-                  Framework
+                  프레임워크
                 </label>
                 <input
                   type="text"
@@ -232,7 +248,7 @@ export default function CreateRoomModal() {
 
               <div>
                 <label className="mb-2 block text-sm font-medium text-slate-700">
-                  Database
+                  데이터베이스
                 </label>
                 <input
                   type="text"
@@ -246,17 +262,17 @@ export default function CreateRoomModal() {
 
             <div>
               <label className="mb-2 block text-sm font-medium text-slate-700">
-                Culture Fit Priority
+                컬처 핏 우선순위
               </label>
               <select
                 value={cultureFitPriority}
                 onChange={handleCultureFitPriorityChange}
                 className="w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm outline-none focus:border-blue-400"
               >
-                <option value="">Select a priority</option>
+                <option value="">우선순위를 선택해 주세요</option>
                 {GROUP_CULTURE_FIT_PRIORITY_VALUES.map((option) => (
                   <option key={option} value={option}>
-                    {option}
+                    {getCultureFitPriorityLabel(option)}
                   </option>
                 ))}
               </select>
@@ -277,7 +293,7 @@ export default function CreateRoomModal() {
               disabled={isSubmitting}
               className="rounded-xl border border-slate-200 px-5 py-2.5 text-slate-600 hover:bg-slate-50 disabled:cursor-not-allowed disabled:text-slate-300"
             >
-              Cancel
+              취소
             </button>
 
             <button
@@ -285,7 +301,7 @@ export default function CreateRoomModal() {
               disabled={isSubmitting}
               className="rounded-xl bg-blue-500 px-5 py-2.5 font-medium text-white hover:bg-blue-600 disabled:cursor-not-allowed disabled:bg-slate-300"
             >
-              {isSubmitting ? "Creating Group..." : "Create Group"}
+              {isSubmitting ? "그룹 생성 중..." : "그룹 생성"}
             </button>
             </div>
           </div>

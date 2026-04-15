@@ -3,10 +3,10 @@ export const USE_API_MOCK = false;
 const INITIAL_GROUPS = [
   {
     group_id: 'group-platform-core',
-    name: 'Platform Core',
+    name: '플랫폼 코어',
     created_at: '2026-04-10T09:00:00.000Z',
     description:
-      'Frontend platform team focused on shared architecture, internal tooling, and DX.',
+      '공통 아키텍처, 내부 도구, 개발자 경험 개선에 집중하는 프론트엔드 플랫폼 팀입니다.',
     tech_stacks: {
       framework: 'React 19 + Vite',
       db: 'PostgreSQL',
@@ -15,10 +15,10 @@ const INITIAL_GROUPS = [
   },
   {
     group_id: 'group-growth-labs',
-    name: 'Growth Labs',
+    name: '그로스 랩스',
     created_at: '2026-04-08T13:30:00.000Z',
     description:
-      'Experiment-heavy product team that values fast iteration, ownership, and crisp communication.',
+      '빠른 실험, 높은 오너십, 명확한 커뮤니케이션을 중요하게 생각하는 제품 팀입니다.',
     tech_stacks: {
       framework: 'Next.js',
       db: 'Supabase',
@@ -27,10 +27,10 @@ const INITIAL_GROUPS = [
   },
   {
     group_id: 'group-ai-studio',
-    name: 'AI Studio',
+    name: 'AI 스튜디오',
     created_at: '2026-04-05T16:45:00.000Z',
     description:
-      'AI-assisted product squad building interview workflows and candidate analysis features.',
+      '면접 워크플로우와 지원자 분석 기능을 만드는 AI 기반 제품 스쿼드입니다.',
     tech_stacks: {
       framework: 'React + TypeScript',
       db: 'MongoDB',

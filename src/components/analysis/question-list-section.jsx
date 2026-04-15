@@ -24,20 +24,20 @@ export function QuestionListSection({
   isLoading,
   errorMessage,
   emptyMessage,
-  title = 'Generated Questions',
-  description = 'Interview questions generated from the completed applicant analysis.',
+  title = '생성된 질문',
+  description = '완료된 지원자 분석을 바탕으로 생성된 면접 질문입니다.',
 }) {
   return (
     <section className="space-y-6">
       <div className="flex flex-wrap items-end justify-between gap-4">
         <div>
-          <p className="text-sm font-medium text-violet-600">AI Questions</p>
+          <p className="text-sm font-medium text-violet-600">AI 질문</p>
           <h2 className="mt-2 text-2xl font-semibold text-slate-900">{title}</h2>
           <p className="mt-2 max-w-3xl text-sm leading-6 text-slate-500">{description}</p>
         </div>
 
         <span className="rounded-full bg-violet-50 px-3 py-1 text-xs font-semibold text-violet-700">
-          {questions.length} questions
+          질문 {questions.length}개
         </span>
       </div>
 

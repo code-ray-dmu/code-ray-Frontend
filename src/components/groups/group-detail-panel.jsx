@@ -20,10 +20,26 @@ function formatCreatedAt(createdAt) {
     return createdAt;
   }
 
-  return new Intl.DateTimeFormat('en-US', {
+  return new Intl.DateTimeFormat('ko-KR', {
     dateStyle: 'medium',
     timeStyle: 'short',
   }).format(parsedDate);
+}
+
+function getCultureFitPriorityLabel(priority) {
+  if (priority === 'HIGH') {
+    return '높음';
+  }
+
+  if (priority === 'MEDIUM') {
+    return '보통';
+  }
+
+  if (priority === 'LOW') {
+    return '낮음';
+  }
+
+  return priority ?? '미정';
 }
 
 export function GroupDetailPanel({ group }) {
@@ -32,27 +48,27 @@ export function GroupDetailPanel({ group }) {
       <div className="rounded-2xl border border-slate-200 bg-white p-8 shadow-sm">
         <div className="flex flex-wrap items-start justify-between gap-4">
           <div>
-            <p className="text-sm font-medium text-blue-600">Group Detail</p>
+            <p className="text-sm font-medium text-blue-600">그룹 정보</p>
             <h2 className="mt-2 text-3xl font-semibold text-slate-900">
-              {group.name ?? 'Untitled Group'}
+              {group.name ?? '이름 없는 그룹'}
             </h2>
             <p className="mt-3 max-w-3xl text-sm leading-6 text-slate-500">
-              {group.description ?? 'No group description has been provided yet.'}
+              {group.description ?? '아직 그룹 설명이 등록되지 않았습니다.'}
             </p>
           </div>
 
           <span className="rounded-full bg-blue-50 px-3 py-1 text-xs font-semibold text-blue-600">
-            {group.cultureFitPriority ?? 'N/A'}
+            {getCultureFitPriorityLabel(group.cultureFitPriority)}
           </span>
         </div>
 
         <div className="mt-8 grid gap-4 md:grid-cols-2">
-          <DetailItem label="Created At" value={formatCreatedAt(group.createdAt)} />
-          <DetailItem label="Framework" value={group.techStacks.framework || '-'} />
-          <DetailItem label="Database" value={group.techStacks.db || '-'} />
+          <DetailItem label="생성 일시" value={formatCreatedAt(group.createdAt)} />
+          <DetailItem label="프레임워크" value={group.techStacks.framework || '-'} />
+          <DetailItem label="데이터베이스" value={group.techStacks.db || '-'} />
           <DetailItem
-            label="Culture Fit Priority"
-            value={group.cultureFitPriority ?? '-'}
+            label="컬처 핏 우선순위"
+            value={getCultureFitPriorityLabel(group.cultureFitPriority)}
           />
         </div>
       </div>

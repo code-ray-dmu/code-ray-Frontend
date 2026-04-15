@@ -1,42 +1,42 @@
 function formatRelativeUpdatedAt(createdAt) {
   if (typeof createdAt !== 'string' || createdAt.length === 0) {
-    return 'Recently updated';
+    return '최근 업데이트';
   }
 
   const createdTime = new Date(createdAt).getTime();
 
   if (Number.isNaN(createdTime)) {
-    return 'Recently updated';
+    return '최근 업데이트';
   }
 
   const diffMs = Date.now() - createdTime;
   const diffMinutes = Math.max(1, Math.floor(diffMs / (1000 * 60)));
 
   if (diffMinutes < 60) {
-    return `Updated ${diffMinutes}m ago`;
+    return `${diffMinutes}분 전 업데이트`;
   }
 
   const diffHours = Math.floor(diffMinutes / 60);
 
   if (diffHours < 24) {
-    return `Updated ${diffHours}h ago`;
+    return `${diffHours}시간 전 업데이트`;
   }
 
   const diffDays = Math.floor(diffHours / 24);
 
-  return `Updated ${diffDays}d ago`;
+  return `${diffDays}일 전 업데이트`;
 }
 
 function getGroupStatusLabel(group) {
   if (typeof group.applicantCount === 'number' && group.applicantCount > 0) {
-    return 'Ready';
+    return '준비 완료';
   }
 
-  return 'Draft';
+  return '초안';
 }
 
 function getGroupStatusClassName(group) {
-  if (getGroupStatusLabel(group) === 'Ready') {
+  if (getGroupStatusLabel(group) === '준비 완료') {
     return 'bg-blue-50 text-blue-600';
   }
 
@@ -47,8 +47,24 @@ function getGroupTags(group) {
   return [
     group.techStacks?.framework,
     group.techStacks?.db,
-    group.cultureFitPriority,
+    getCultureFitPriorityLabel(group.cultureFitPriority),
   ].filter((value) => typeof value === 'string' && value.length > 0);
+}
+
+function getCultureFitPriorityLabel(priority) {
+  if (priority === 'HIGH') {
+    return '높음';
+  }
+
+  if (priority === 'MEDIUM') {
+    return '보통';
+  }
+
+  if (priority === 'LOW') {
+    return '낮음';
+  }
+
+  return priority ?? null;
 }
 
 function getGroupDescription(group) {
@@ -56,21 +72,21 @@ function getGroupDescription(group) {
     return group.description;
   }
 
-  return 'A focused interview group ready for applicant analysis and question generation.';
+  return '지원자 분석과 면접 질문 생성을 바로 시작할 수 있는 면접 그룹입니다.';
 }
 
 function getBottomMetrics(group) {
   return [
     {
-      label: 'Applicants',
+      label: '지원자',
       value:
-        typeof group.applicantCount === 'number' ? `${group.applicantCount} Applicants` : null,
+        typeof group.applicantCount === 'number' ? `${group.applicantCount}명` : null,
     },
     {
-      label: 'Priority',
+      label: '우선순위',
       value:
         typeof group.cultureFitPriority === 'string' && group.cultureFitPriority.length > 0
-          ? group.cultureFitPriority
+          ? getCultureFitPriorityLabel(group.cultureFitPriority)
           : null,
     },
   ].filter((metric) => metric.value !== null);
@@ -120,7 +136,7 @@ function GroupCard({ group }) {
       <div className="flex items-start justify-between gap-4">
         <div className="min-w-0">
           <h3 className="truncate text-2xl font-semibold tracking-tight text-slate-950">
-            {group.name ?? 'Untitled Group'}
+            {group.name ?? '이름 없는 그룹'}
           </h3>
           <p className="mt-2 text-sm font-medium text-slate-400">
             {formatRelativeUpdatedAt(group.createdAt)}
@@ -176,8 +192,8 @@ export function GroupListSection({
     return (
       <section className="space-y-6">
         <div>
-          <h3 className="text-lg font-semibold text-slate-900">Your Groups</h3>
-          <p className="mt-1 text-sm text-slate-500">Loading your authenticated group list.</p>
+          <h3 className="text-lg font-semibold text-slate-900">내 그룹</h3>
+          <p className="mt-1 text-sm text-slate-500">그룹 목록을 불러오는 중입니다.</p>
         </div>
 
         <div className="grid gap-6 md:grid-cols-2">
@@ -192,14 +208,14 @@ export function GroupListSection({
   if (errorMessage !== null) {
     return (
       <section className="rounded-2xl border border-red-200 bg-red-50 p-6">
-        <h3 className="text-lg font-semibold text-red-900">Unable to load groups</h3>
+        <h3 className="text-lg font-semibold text-red-900">그룹을 불러오지 못했습니다</h3>
         <p className="mt-2 text-sm text-red-700">{errorMessage}</p>
 
         <button
           onClick={onRetry}
           className="mt-4 rounded-xl bg-red-600 px-4 py-2 text-sm font-medium text-white hover:bg-red-700"
         >
-          Retry
+          다시 시도
         </button>
       </section>
     );
@@ -208,9 +224,9 @@ export function GroupListSection({
   if (groups.length === 0) {
     return (
       <section className="rounded-2xl border border-dashed border-slate-300 bg-white p-10 text-center shadow-sm">
-        <h3 className="text-xl font-semibold text-slate-900">No groups yet</h3>
+        <h3 className="text-xl font-semibold text-slate-900">아직 그룹이 없습니다</h3>
         <p className="mt-2 text-sm text-slate-500">
-          Your account does not have any groups on this page yet. Connect the create flow next to add one.
+          아직 등록된 그룹이 없습니다. 옆의 그룹 만들기 버튼으로 새 그룹을 추가해 보세요.
         </p>
       </section>
     );
@@ -220,9 +236,9 @@ export function GroupListSection({
     <section className="space-y-6">
       <div className="flex items-end justify-between gap-4">
         <div>
-          <h3 className="text-lg font-semibold text-slate-900">Your Groups</h3>
+          <h3 className="text-lg font-semibold text-slate-900">내 그룹</h3>
           <p className="mt-1 text-sm text-slate-500">
-            {totalGroups} total groups available for your account.
+            총 {totalGroups}개의 그룹이 있습니다.
           </p>
         </div>
       </div>

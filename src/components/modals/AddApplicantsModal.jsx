@@ -75,7 +75,7 @@ export default function AddApplicantsModal({
         <div className="flex flex-wrap items-start justify-between gap-3 border-b border-slate-200 px-6 py-5">
           <div>
             <h2 className="text-xl font-semibold text-slate-900">
-              Add Applicants
+              지원자 추가
             </h2>
             <p className="mt-1 text-sm text-slate-500">
               이름, 이메일, GitHub 주소를 여러 명 한 번에 추가할 수 있습니다.
@@ -86,7 +86,7 @@ export default function AddApplicantsModal({
             onClick={onClose}
             className="rounded-xl border border-slate-200 px-3 py-2 text-sm font-medium text-slate-600 hover:bg-slate-50"
           >
-            Close
+            닫기
           </button>
         </div>
 
@@ -96,11 +96,11 @@ export default function AddApplicantsModal({
               onClick={handleAddRow}
               className="rounded-xl border border-slate-200 px-4 py-2 text-sm font-medium text-slate-700 hover:bg-slate-50"
             >
-              + Add Row
+              + 행 추가
             </button>
 
             <label className="cursor-pointer rounded-xl border border-slate-200 px-4 py-2 text-sm font-medium text-slate-700 hover:bg-slate-50">
-              CSV Upload
+              CSV 업로드
               <input
                 type="file"
                 accept=".csv,text/csv"
@@ -113,10 +113,10 @@ export default function AddApplicantsModal({
           <div className="overflow-x-auto rounded-2xl border border-slate-200">
             <div className="min-w-[760px]">
               <div className="grid grid-cols-[1fr_1.2fr_1.4fr_100px] gap-3 border-b border-slate-200 bg-slate-50 px-4 py-3 text-xs font-semibold uppercase tracking-wide text-slate-500">
-                <div>Name</div>
-                <div>Email</div>
+                <div>이름</div>
+                <div>이메일</div>
                 <div>GitHub URL</div>
-                <div>Action</div>
+                <div>동작</div>
               </div>
 
               <div>
@@ -148,7 +148,7 @@ export default function AddApplicantsModal({
                       onChange={(e) =>
                         handleChangeRow(row.id, "githubUrl", e.target.value)
                       }
-                      placeholder="github.com/username/repo"
+                      placeholder="https://github.com/username"
                       className="min-w-0 rounded-xl border border-slate-200 px-3 py-2 text-sm outline-none focus:border-blue-400"
                     />
 
@@ -157,7 +157,7 @@ export default function AddApplicantsModal({
                       disabled={rows.length === 1 && index === 0}
                       className="w-full rounded-xl border border-slate-200 px-3 py-2 text-sm font-medium text-slate-600 hover:bg-slate-50 disabled:cursor-not-allowed disabled:text-slate-300"
                     >
-                      Delete
+                      삭제
                     </button>
                   </div>
                 ))}
@@ -171,14 +171,14 @@ export default function AddApplicantsModal({
             onClick={onClose}
             className="rounded-xl border border-slate-200 px-4 py-2 text-sm font-medium text-slate-700 hover:bg-slate-50"
           >
-            Cancel
+            취소
           </button>
 
           <button
             onClick={handleSave}
             className="rounded-xl bg-blue-500 px-4 py-2 text-sm font-medium text-white hover:bg-blue-600"
           >
-            Save Applicants
+            지원자 저장
           </button>
         </div>
       </div>

@@ -39,15 +39,15 @@ export function ApplicantPagination({
       <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
         <div>
           <h3 className="text-sm font-semibold uppercase tracking-wide text-slate-500">
-            Applicant Pagination
+            지원자 페이지 이동
           </h3>
           <p className="mt-1 text-sm text-slate-600">
-            Page {currentPage} of {totalPages} · {safeTotal} total applicants
+            {currentPage} / {totalPages}페이지 · 총 {safeTotal}명 지원자
           </p>
         </div>
 
         <label className="flex items-center gap-3 text-sm text-slate-600">
-          <span>Page size</span>
+          <span>페이지당 개수</span>
           <select
             value={size}
             disabled={isDisabled}
@@ -69,7 +69,7 @@ export function ApplicantPagination({
           disabled={isPreviousDisabled}
           className="rounded-xl border border-slate-200 px-4 py-2 text-sm font-medium text-slate-700 hover:bg-slate-50 disabled:cursor-not-allowed disabled:text-slate-300"
         >
-          Previous
+          이전
         </button>
 
         {pageNumbers.map((pageNumber) => (
@@ -92,7 +92,7 @@ export function ApplicantPagination({
           disabled={isNextDisabled}
           className="rounded-xl border border-slate-200 px-4 py-2 text-sm font-medium text-slate-700 hover:bg-slate-50 disabled:cursor-not-allowed disabled:text-slate-300"
         >
-          Next
+          다음
         </button>
       </div>
     </section>

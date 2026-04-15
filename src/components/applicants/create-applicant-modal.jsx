@@ -23,20 +23,20 @@ function validateApplicantInput(formValues) {
   const normalizedGitHubUrl = normalizeGitHubProfileUrl(formValues.githubUrl);
 
   if (formValues.name.trim().length === 0) {
-    nextErrors.name = 'Please enter the applicant name.';
+    nextErrors.name = '지원자 이름을 입력해 주세요.';
   }
 
   if (formValues.email.trim().length === 0) {
-    nextErrors.email = 'Please enter the applicant email.';
+    nextErrors.email = '지원자 이메일을 입력해 주세요.';
   } else if (!isValidEmail(formValues.email.trim())) {
-    nextErrors.email = 'Please enter a valid email address.';
+    nextErrors.email = '올바른 이메일 주소를 입력해 주세요.';
   }
 
   if (formValues.githubUrl.trim().length === 0) {
-    nextErrors.githubUrl = 'Please enter the GitHub profile URL.';
+    nextErrors.githubUrl = 'GitHub 프로필 주소를 입력해 주세요.';
   } else if (normalizedGitHubUrl === null) {
     nextErrors.githubUrl =
-      'Enter a GitHub profile URL like https://github.com/username. Repository URLs are not allowed.';
+      'https://github.com/username 형식의 GitHub 프로필 주소를 입력해 주세요. 저장소 URL은 사용할 수 없습니다.';
   }
 
   return {
@@ -50,26 +50,26 @@ function getCreateApplicantErrorMessage(error) {
   const errorCode = getApiErrorCode(error);
 
   if (errorCode === 'VALIDATION_ERROR') {
-    return 'Please review the applicant details and try again.';
+    return '지원자 정보를 다시 확인한 뒤 시도해 주세요.';
   }
 
   if (errorCode === 'GROUP_NOT_FOUND') {
-    return 'This group no longer exists. Refresh the page and try again.';
+    return '이 그룹을 찾을 수 없습니다. 페이지를 새로고침한 뒤 다시 시도해 주세요.';
   }
 
   if (errorCode === 'UNAUTHORIZED' || errorCode === 'AUTH_TOKEN_EXPIRED') {
-    return 'Your session is no longer valid. Please sign in again and retry.';
+    return '세션이 만료되었습니다. 다시 로그인한 뒤 시도해 주세요.';
   }
 
   if (error?.response === undefined) {
-    return 'Unable to reach the server. Please check your connection and try again.';
+    return '서버에 연결할 수 없습니다. 네트워크 상태를 확인한 뒤 다시 시도해 주세요.';
   }
 
   if (error instanceof Error && error.message.length > 0) {
     return error.message;
   }
 
-  return 'Applicant creation failed. Please try again.';
+  return '지원자 생성에 실패했습니다. 다시 시도해 주세요.';
 }
 
 export function CreateApplicantModal({ group, isOpen, onClose, onCreated }) {
@@ -158,7 +158,7 @@ export function CreateApplicantModal({ group, isOpen, onClose, onCreated }) {
     event.preventDefault();
 
     if (typeof group?.id !== 'string' || group.id.length === 0) {
-      setSubmitErrorMessage('A valid group context is required to create an applicant.');
+      setSubmitErrorMessage('지원자를 추가하려면 올바른 그룹 정보가 필요합니다.');
       return;
     }
 
@@ -204,9 +204,9 @@ export function CreateApplicantModal({ group, isOpen, onClose, onCreated }) {
       <div className="flex max-h-[calc(100vh-2rem)] w-full max-w-2xl flex-col overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-xl">
         <div className="flex items-start justify-between gap-3 border-b border-slate-200 px-6 py-5">
           <div>
-            <h2 className="text-xl font-semibold text-slate-900">Add Applicant</h2>
+            <h2 className="text-xl font-semibold text-slate-900">지원자 추가</h2>
             <p className="mt-1 text-sm text-slate-500">
-              Register one applicant inside {group?.name ?? 'the selected group'}.
+              {group?.name ?? '선택한 그룹'}에 지원자 한 명을 등록합니다.
             </p>
           </div>
 
@@ -223,9 +223,9 @@ export function CreateApplicantModal({ group, isOpen, onClose, onCreated }) {
           <div className="flex-1 space-y-6 overflow-y-auto px-6 py-6">
             <div className="rounded-2xl bg-slate-50 p-4 text-sm text-slate-600">
               <p className="text-xs font-semibold uppercase tracking-wide text-slate-400">
-                Target Group
+                대상 그룹
               </p>
-              <p className="mt-2 font-medium text-slate-900">{group?.name ?? 'Unknown Group'}</p>
+              <p className="mt-2 font-medium text-slate-900">{group?.name ?? '알 수 없는 그룹'}</p>
               <p className="mt-1 break-all text-slate-500">{group?.id ?? '-'}</p>
             </div>
 
@@ -253,7 +253,7 @@ export function CreateApplicantModal({ group, isOpen, onClose, onCreated }) {
               disabled={isSubmitting}
               className="w-full rounded-xl border border-slate-200 px-5 py-2.5 text-slate-600 hover:bg-slate-50 disabled:cursor-not-allowed disabled:text-slate-300 sm:w-auto"
             >
-              Cancel
+              취소
             </button>
 
             <button
@@ -261,7 +261,7 @@ export function CreateApplicantModal({ group, isOpen, onClose, onCreated }) {
               disabled={isSubmitting}
               className="w-full rounded-xl bg-blue-500 px-5 py-2.5 font-medium text-white hover:bg-blue-600 disabled:cursor-not-allowed disabled:bg-slate-300 sm:w-auto"
             >
-              {isSubmitting ? 'Creating Applicant...' : 'Create Applicant'}
+              {isSubmitting ? '지원자 생성 중...' : '지원자 등록'}
             </button>
           </div>
         </form>
