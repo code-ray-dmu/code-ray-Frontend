@@ -2,7 +2,6 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import { useLocation, useNavigate, useParams } from 'react-router-dom';
 import { AnalysisProgressPanel } from '../components/analysis/analysis-progress-panel.jsx';
 import { QuestionListSection } from '../components/analysis/question-list-section.jsx';
-import { AuthDebugPanel } from '../components/auth/auth-debug-panel.jsx';
 import { ApplicantDetailPanel } from '../components/applicants/applicant-detail-panel.jsx';
 import DashboardLayout from '../components/layout/DashboardLayout';
 import { getApiErrorCode } from '../services/api/api-types.js';
@@ -789,7 +788,32 @@ export function ApplicantDetailPage() {
         </section>
 
         <aside className="space-y-6">
-          <AuthDebugPanel />
+          <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
+            <h3 className="mb-4 text-lg font-semibold text-slate-900">Review Workflow</h3>
+
+            <div className="space-y-4 text-sm text-slate-600">
+              <div className="rounded-xl bg-slate-50 p-4">
+                <p className="text-xs font-semibold uppercase tracking-wide text-slate-400">
+                  Current Step
+                </p>
+                <p className="mt-2 text-slate-800">
+                  Validate the applicant profile, monitor analysis progress, and review the
+                  generated interview questions before the interview.
+                </p>
+              </div>
+
+              <div className="rounded-xl bg-slate-50 p-4">
+                <p className="text-xs font-semibold uppercase tracking-wide text-slate-400">
+                  Best Next Action
+                </p>
+                <p className="mt-2 text-slate-800">
+                  {analysisSummary?.status === ANALYSIS_STATUS_VALUES.COMPLETED
+                    ? 'Refresh and review the generated questions, then move back to the group for the next applicant.'
+                    : 'Start or keep tracking the analysis until the applicant questions are ready.'}
+                </p>
+              </div>
+            </div>
+          </div>
 
           <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
             <h3 className="mb-4 text-lg font-semibold text-slate-900">Navigation Context</h3>

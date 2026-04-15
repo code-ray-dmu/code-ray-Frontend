@@ -168,7 +168,7 @@ export default function CreateRoomModal() {
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/30 backdrop-blur-sm">
-      <div className="flex max-h-[85vh] w-full max-w-2xl flex-col rounded-2xl border border-slate-200 bg-white shadow-xl">
+      <div className="flex max-h-[85vh] w-full max-w-2xl flex-col overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-xl">
         <div className="flex items-center justify-between border-b border-slate-200 px-6 py-5">
           <div>
             <h2 className="text-xl font-semibold text-slate-900">
@@ -188,8 +188,8 @@ export default function CreateRoomModal() {
           </button>
         </div>
 
-        <form onSubmit={handleSubmit} className="flex flex-1 flex-col">
-          <div className="flex-1 space-y-6 overflow-y-auto px-6 py-6">
+        <form onSubmit={handleSubmit} className="flex min-h-0 flex-1 flex-col">
+          <div className="min-h-0 flex-1 space-y-6 overflow-y-auto px-6 py-6">
             <div>
               <label className="mb-2 block text-sm font-medium text-slate-700">
                 Group Name
@@ -269,7 +269,8 @@ export default function CreateRoomModal() {
             ) : null}
           </div>
 
-          <div className="flex justify-end gap-3 border-t border-slate-200 px-6 py-5">
+          <div className="shrink-0 border-t border-slate-200 bg-white px-6 py-5">
+            <div className="flex justify-end gap-3">
             <button
               type="button"
               onClick={handleClose}
@@ -286,6 +287,7 @@ export default function CreateRoomModal() {
             >
               {isSubmitting ? "Creating Group..." : "Create Group"}
             </button>
+            </div>
           </div>
         </form>
       </div>

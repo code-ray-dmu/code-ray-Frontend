@@ -1,10 +1,11 @@
-import { NavLink } from "react-router-dom";
-import { openCreateRoomModal } from "../../utils/createRoomModal";
+import { NavLink, useNavigate } from 'react-router-dom';
+import { clearAuthSession } from '../../services/auth/auth-session.js';
+import { openCreateRoomModal } from '../../utils/createRoomModal';
 
 const navItems = [
   {
-    label: "Groups",
-    to: "/dashboard",
+    label: 'Groups',
+    to: '/dashboard',
     icon: (
       <svg className="w-5 h-5" viewBox="0 -960 960 960" fill="currentColor">
         <path d="M240-200h120v-240h240v240h120v-360L480-740 240-560v360Zm-80 80v-480l320-240 320 240v480H520v-240h-80v240H160Zm320-350Z" />
@@ -12,17 +13,24 @@ const navItems = [
     ),
   },
   {
-    label: "My Session",
-    to: "/sessions",
+    label: 'Workflow',
+    to: '/workflow',
     icon: (
       <svg className="w-5 h-5" viewBox="0 -960 960 960" fill="currentColor">
-        <path d="M234-276q51-39 114-61.5T480-360q69 0 132 22.5T726-276q43-49 66.5-110.5T816-520q0-141-97.5-238.5T480-856q-141 0-238.5 97.5T144-520q0 72 23.5 133.5T234-276Zm246-204q-66 0-113-47t-47-113q0-66 47-113t113-47q66 0 113 47t47 113q0 66-47 113t-113 47Zm0 400q-83 0-156-31.5t-127.5-86Q142-252 110-325t-32-155q0-83 32-156t86.5-127.5q54.5-54.5 127.5-86T480-882q83 0 156 32.5T763.5-763q54.5 54.5 86.5 127.5T882-480q0 82-32 155T763.5-197q-54.5 54.5-127.5 86T480-80Z" />
+        <path d="M280-120q-33 0-56.5-23.5T200-200v-560q0-33 23.5-56.5T280-840h400q33 0 56.5 23.5T760-760v160h-80v-160H280v560h200v80H280Zm360 0v-170q-66-14-103-66t-37-124q0-79 55.5-134.5T690-670q79 0 134.5 55.5T880-480q0 72-37 124t-103 66v170H640Zm50-250q46 0 78-32t32-78q0-46-32-78t-78-32q-46 0-78 32t-32 78q0 46 32 78t78 32Z" />
       </svg>
     ),
   },
 ];
 
-export default function Sidebar({ rooms = [], recentItemsLabel = "Recent Rooms" }) {
+export default function Sidebar({ rooms = [], recentItemsLabel = 'Recent Rooms' }) {
+  const navigate = useNavigate();
+
+  function handleSignOut() {
+    clearAuthSession();
+    navigate('/login', { replace: true });
+  }
+
   return (
     <aside className="w-72 bg-white border-r px-6 py-8 flex flex-col">
       <div className="mb-8 pl-6">
@@ -31,7 +39,7 @@ export default function Sidebar({ rooms = [], recentItemsLabel = "Recent Rooms" 
 
       <button
         onClick={openCreateRoomModal}
-        className="w-full mb-8 bg-blue-500 hover:bg-blue-600 text-white py-3 rounded-xl font-medium shadow-sm"
+        className="mb-8 w-full rounded-xl bg-blue-500 py-3 font-medium text-white shadow-sm hover:bg-blue-600"
       >
         + Create Group
       </button>
@@ -72,6 +80,19 @@ export default function Sidebar({ rooms = [], recentItemsLabel = "Recent Rooms" 
           </div>
         </div>
       ) : null}
+
+      <div className="mt-auto border-t border-slate-200 pt-6">
+        <button
+          type="button"
+          onClick={handleSignOut}
+          className="flex w-full items-center justify-between rounded-xl border border-slate-200 px-4 py-3 text-sm font-medium text-slate-700 transition hover:bg-slate-50"
+        >
+          <span>Sign Out</span>
+          <svg className="h-5 w-5" viewBox="0 -960 960 960" fill="currentColor">
+            <path d="M186.67-120q-27 0-46.84-19.83Q120-159.67 120-186.67v-586.66q0-27 19.83-46.84Q159.67-840 186.67-840h293.66v66.67H186.67v586.66h293.66V-120H186.67Zm426.66-160-47.66-48L684-446.33H360v-67.34h324L565.67-632l47.66-48L814.67-480 613.33-280Z" />
+          </svg>
+        </button>
+      </div>
     </aside>
   );
 }

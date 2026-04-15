@@ -1,6 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
 import { useLocation, useNavigate, useParams, useSearchParams } from 'react-router-dom';
-import { AuthDebugPanel } from '../components/auth/auth-debug-panel.jsx';
 import { BatchAnalysisProgressModal } from '../components/analysis/batch-analysis-progress-modal.jsx';
 import { CreateApplicantModal } from '../components/applicants/create-applicant-modal.jsx';
 import { ApplicantListSection } from '../components/applicants/applicant-list-section.jsx';
@@ -1142,7 +1141,32 @@ export function GroupDetailPage() {
         </section>
 
         <aside className="space-y-6">
-          <AuthDebugPanel />
+          <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
+            <h3 className="mb-4 text-lg font-semibold text-slate-900">Group Workflow</h3>
+
+            <div className="space-y-4 text-sm text-slate-600">
+              <div className="rounded-xl bg-slate-50 p-4">
+                <p className="text-xs font-semibold uppercase tracking-wide text-slate-400">
+                  Current Focus
+                </p>
+                <p className="mt-2 text-slate-800">
+                  Build the applicant queue for this group and start analysis when candidates are
+                  ready.
+                </p>
+              </div>
+
+              <div className="rounded-xl bg-slate-50 p-4">
+                <p className="text-xs font-semibold uppercase tracking-wide text-slate-400">
+                  Best Next Action
+                </p>
+                <p className="mt-2 text-slate-800">
+                  {startableApplicantCount > 0
+                    ? 'Start batch analysis to generate interview questions for the ready applicants.'
+                    : 'Add more applicants or wait for the running analysis jobs to finish.'}
+                </p>
+              </div>
+            </div>
+          </div>
 
           <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
             <h3 className="mb-4 text-lg font-semibold text-slate-900">Batch Overview</h3>

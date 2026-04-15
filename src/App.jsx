@@ -6,7 +6,7 @@ import { GroupDetailPage } from './pages/GroupDetailPage.jsx';
 import { LoginPage } from './pages/LoginPage.jsx';
 import MainPage from './pages/MainPage';
 import RoomDetailPage from './pages/RoomDetailPage';
-import SessionsPage from './pages/SessionsPage';
+import { WorkflowPage } from './pages/SessionsPage.jsx';
 import { SignupPage } from './pages/SignupPage.jsx';
 
 export function App() {
@@ -17,7 +17,8 @@ export function App() {
         <Route path="/dashboard" element={<DashboardPage />} />
         <Route path="/groups/:groupId" element={<GroupDetailPage />} />
         <Route path="/groups/:groupId/applicants/:applicantId" element={<ApplicantDetailPage />} />
-        <Route path="/sessions" element={<SessionsPage />} />
+        <Route path="/workflow" element={<WorkflowPage />} />
+        <Route path="/sessions" element={<WorkflowPage />} />
         <Route path="/rooms/:roomId" element={<RoomDetailPage />} />
         <Route path="/login" element={<LoginPage />} />
         <Route path="/signup" element={<SignupPage />} />

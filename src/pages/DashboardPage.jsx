@@ -1,6 +1,5 @@
 import { useEffect, useState } from 'react';
-import { useLocation, useNavigate, useSearchParams } from 'react-router-dom';
-import { AuthDebugPanel } from '../components/auth/auth-debug-panel.jsx';
+import { Link, useLocation, useNavigate, useSearchParams } from 'react-router-dom';
 import { GroupListSection } from '../components/groups/group-list-section.jsx';
 import { GroupPagination } from '../components/groups/group-pagination.jsx';
 import DashboardLayout from '../components/layout/DashboardLayout';
@@ -14,6 +13,7 @@ import {
   DEFAULT_GROUP_LIST_PAGE,
   DEFAULT_GROUP_LIST_SIZE,
 } from '../services/groups/group-types.js';
+import { openCreateRoomModal } from '../utils/createRoomModal';
 
 function getGroupListErrorMessage(error) {
   const errorCode = getApiErrorCode(error);
@@ -35,6 +35,49 @@ function getGroupListErrorMessage(error) {
   }
 
   return 'Group list request failed. Please try again.';
+}
+
+function WorkflowShortcutCard() {
+  return (
+    <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
+      <div className="flex items-start justify-between gap-4">
+        <div>
+          <h3 className="text-lg font-semibold text-slate-900">Workflow Shortcut</h3>
+          <p className="mt-1 text-sm text-slate-500">
+            Start in groups, add applicants inside each group, then review generated questions per
+            applicant.
+          </p>
+        </div>
+
+        <span className="rounded-full bg-blue-50 px-3 py-1 text-xs font-semibold text-blue-600">
+          Main Flow
+        </span>
+      </div>
+
+      <div className="mt-5 grid gap-3">
+        <button
+          type="button"
+          onClick={openCreateRoomModal}
+          className="rounded-xl bg-blue-500 px-4 py-3 text-sm font-medium text-white transition hover:bg-blue-600"
+        >
+          Create Group
+        </button>
+
+        <Link
+          to="/workflow"
+          className="rounded-xl border border-slate-200 px-4 py-3 text-center text-sm font-medium text-slate-700 transition hover:bg-slate-50"
+        >
+          Open Workflow Guide
+        </Link>
+      </div>
+
+      <ol className="mt-5 space-y-3 text-sm text-slate-600">
+        <li className="rounded-xl bg-slate-50 px-4 py-3">1. Create a group with team context.</li>
+        <li className="rounded-xl bg-slate-50 px-4 py-3">2. Add applicants in the group detail page.</li>
+        <li className="rounded-xl bg-slate-50 px-4 py-3">3. Start analysis and review applicant details.</li>
+      </ol>
+    </div>
+  );
 }
 
 export function DashboardPage() {
@@ -233,7 +276,7 @@ export function DashboardPage() {
         </section>
 
         <aside className="space-y-6">
-          <AuthDebugPanel />
+          <WorkflowShortcutCard />
 
           <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
             <h3 className="mb-4 text-lg font-semibold text-slate-900">List State</h3>
@@ -262,38 +305,6 @@ export function DashboardPage() {
             </dl>
           </div>
 
-          <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
-            <h3 className="mb-4 text-lg font-semibold text-slate-900">Request Context</h3>
-
-            <div className="space-y-4 text-sm text-slate-600">
-              <div className="rounded-xl bg-slate-50 p-4">
-                <p className="text-xs font-semibold uppercase tracking-wide text-slate-400">
-                  Query String
-                </p>
-                <p className="mt-2 break-all font-medium text-slate-800">
-                  {normalizedSearchParamsString.length > 0 ? normalizedSearchParamsString : '-'}
-                </p>
-              </div>
-
-              <div className="rounded-xl bg-slate-50 p-4">
-                <p className="text-xs font-semibold uppercase tracking-wide text-slate-400">
-                  Request ID
-                </p>
-                <p className="mt-2 break-all font-medium text-slate-800">
-                  {groupListMeta.requestId ?? 'Unavailable'}
-                </p>
-              </div>
-
-              <div className="rounded-xl bg-slate-50 p-4">
-                <p className="text-xs font-semibold uppercase tracking-wide text-slate-400">
-                  Next Step
-                </p>
-                <p className="mt-2 text-slate-800">
-                  Create-group submission now returns to this list and triggers a fresh fetch.
-                </p>
-              </div>
-            </div>
-          </div>
         </aside>
       </div>
     </DashboardLayout>
