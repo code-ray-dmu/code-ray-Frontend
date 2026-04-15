@@ -19,22 +19,22 @@ function getGroupListErrorMessage(error) {
   const errorCode = getApiErrorCode(error);
 
   if (errorCode === 'UNAUTHORIZED' || errorCode === 'AUTH_TOKEN_EXPIRED') {
-    return 'Your session is no longer valid. Please sign in again and retry.';
+    return '세션이 만료되었습니다. 다시 로그인한 뒤 시도해 주세요.';
   }
 
   if (errorCode === 'FORBIDDEN_RESOURCE_ACCESS') {
-    return 'You do not have permission to access this group list.';
+    return '이 그룹 목록에 접근할 권한이 없습니다.';
   }
 
   if (error?.response === undefined) {
-    return 'Unable to reach the server. Please check your connection and try again.';
+    return '서버에 연결할 수 없습니다. 네트워크 상태를 확인한 뒤 다시 시도해 주세요.';
   }
 
   if (error instanceof Error && error.message.length > 0) {
     return error.message;
   }
 
-  return 'Group list request failed. Please try again.';
+  return '그룹 목록을 불러오지 못했습니다. 다시 시도해 주세요.';
 }
 
 function WorkflowShortcutCard() {
@@ -42,15 +42,15 @@ function WorkflowShortcutCard() {
     <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
       <div className="flex items-start justify-between gap-4">
         <div>
-          <h3 className="text-lg font-semibold text-slate-900">Workflow Shortcut</h3>
+          <h3 className="text-lg font-semibold text-slate-900">빠른 시작 안내</h3>
           <p className="mt-1 text-sm text-slate-500">
-            Start in groups, add applicants inside each group, then review generated questions per
-            applicant.
+            그룹을 만든 뒤 지원자를 추가하고, 각 지원자별로 생성된 질문을 확인하는
+            흐름으로 진행하면 됩니다.
           </p>
         </div>
 
         <span className="rounded-full bg-blue-50 px-3 py-1 text-xs font-semibold text-blue-600">
-          Main Flow
+          기본 흐름
         </span>
       </div>
 
@@ -60,21 +60,21 @@ function WorkflowShortcutCard() {
           onClick={openCreateRoomModal}
           className="rounded-xl bg-blue-500 px-4 py-3 text-sm font-medium text-white transition hover:bg-blue-600"
         >
-          Create Group
+          그룹 만들기
         </button>
 
         <Link
           to="/workflow"
           className="rounded-xl border border-slate-200 px-4 py-3 text-center text-sm font-medium text-slate-700 transition hover:bg-slate-50"
         >
-          Open Workflow Guide
+          워크플로우 가이드 보기
         </Link>
       </div>
 
       <ol className="mt-5 space-y-3 text-sm text-slate-600">
-        <li className="rounded-xl bg-slate-50 px-4 py-3">1. Create a group with team context.</li>
-        <li className="rounded-xl bg-slate-50 px-4 py-3">2. Add applicants in the group detail page.</li>
-        <li className="rounded-xl bg-slate-50 px-4 py-3">3. Start analysis and review applicant details.</li>
+        <li className="rounded-xl bg-slate-50 px-4 py-3">1. 팀 정보에 맞는 그룹을 만듭니다.</li>
+        <li className="rounded-xl bg-slate-50 px-4 py-3">2. 그룹 상세에서 지원자를 추가합니다.</li>
+        <li className="rounded-xl bg-slate-50 px-4 py-3">3. 분석을 시작하고 결과를 확인합니다.</li>
       </ol>
     </div>
   );
@@ -112,7 +112,7 @@ export function DashboardPage() {
   const currentOrder = normalizedParams.order;
   const recentGroups = groups.map((group) => ({
     id: group.id,
-    name: group.name ?? 'Untitled Group',
+    name: group.name ?? '이름 없는 그룹',
     href: typeof group.id === 'string' ? `/groups/${group.id}` : '/dashboard',
   }));
 
@@ -193,8 +193,8 @@ export function DashboardPage() {
 
     setGroupCreationSuccessMessage(
       typeof createdGroupName === 'string' && createdGroupName.length > 0
-        ? `Group "${createdGroupName}" was created successfully.`
-        : 'Group was created successfully.',
+        ? `"${createdGroupName}" 그룹이 생성되었습니다.`
+        : '그룹이 생성되었습니다.',
     );
     setRetryCount((previousRetryCount) => previousRetryCount + 1);
   }, [location.state]);
@@ -244,9 +244,9 @@ export function DashboardPage() {
     <DashboardLayout
       rooms={[]}
       recentItems={recentGroups}
-      recentItemsLabel="Recent Groups"
-      title="Groups"
-      description="Browse and paginate the interview groups owned by your account."
+      recentItemsLabel="최근 그룹"
+      title="그룹"
+      description="내 계정에 속한 면접 그룹을 확인하고 관리할 수 있습니다."
     >
       <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_320px]">
         <section className="space-y-6">
@@ -279,26 +279,26 @@ export function DashboardPage() {
           <WorkflowShortcutCard />
 
           <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
-            <h3 className="mb-4 text-lg font-semibold text-slate-900">List State</h3>
+            <h3 className="mb-4 text-lg font-semibold text-slate-900">목록 현황</h3>
 
             <dl className="space-y-4 text-sm text-slate-600">
               <div className="rounded-xl bg-slate-50 p-4">
                 <dt className="text-xs font-semibold uppercase tracking-wide text-slate-400">
-                  Current Page
+                  현재 페이지
                 </dt>
                 <dd className="mt-1 text-lg font-semibold text-slate-900">{groupListMeta.page}</dd>
               </div>
 
               <div className="rounded-xl bg-slate-50 p-4">
                 <dt className="text-xs font-semibold uppercase tracking-wide text-slate-400">
-                  Page Size
+                  페이지당 개수
                 </dt>
                 <dd className="mt-1 text-lg font-semibold text-slate-900">{groupListMeta.size}</dd>
               </div>
 
               <div className="rounded-xl bg-slate-50 p-4">
                 <dt className="text-xs font-semibold uppercase tracking-wide text-slate-400">
-                  Total Groups
+                  전체 그룹 수
                 </dt>
                 <dd className="mt-1 text-lg font-semibold text-slate-900">{groupListMeta.total}</dd>
               </div>

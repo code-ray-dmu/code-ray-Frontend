@@ -4,7 +4,7 @@ import { openCreateRoomModal } from '../../utils/createRoomModal';
 
 const navItems = [
   {
-    label: 'Groups',
+    label: '그룹',
     to: '/dashboard',
     icon: (
       <svg className="w-5 h-5" viewBox="0 -960 960 960" fill="currentColor">
@@ -13,7 +13,7 @@ const navItems = [
     ),
   },
   {
-    label: 'Workflow',
+    label: '워크플로우',
     to: '/workflow',
     icon: (
       <svg className="w-5 h-5" viewBox="0 -960 960 960" fill="currentColor">
@@ -23,7 +23,7 @@ const navItems = [
   },
 ];
 
-export default function Sidebar({ rooms = [], recentItemsLabel = 'Recent Rooms' }) {
+export default function Sidebar({ rooms = [], recentItemsLabel = '최근 항목' }) {
   const navigate = useNavigate();
 
   function handleSignOut() {
@@ -41,7 +41,7 @@ export default function Sidebar({ rooms = [], recentItemsLabel = 'Recent Rooms' 
         onClick={openCreateRoomModal}
         className="mb-8 w-full rounded-xl bg-blue-500 py-3 font-medium text-white shadow-sm hover:bg-blue-600"
       >
-        + Create Group
+        + 그룹 만들기
       </button>
 
       <nav className="space-y-2 text-sm">
@@ -87,7 +87,7 @@ export default function Sidebar({ rooms = [], recentItemsLabel = 'Recent Rooms' 
           onClick={handleSignOut}
           className="flex w-full items-center justify-between rounded-xl border border-slate-200 px-4 py-3 text-sm font-medium text-slate-700 transition hover:bg-slate-50"
         >
-          <span>Sign Out</span>
+          <span>로그아웃</span>
           <svg className="h-5 w-5" viewBox="0 -960 960 960" fill="currentColor">
             <path d="M186.67-120q-27 0-46.84-19.83Q120-159.67 120-186.67v-586.66q0-27 19.83-46.84Q159.67-840 186.67-840h293.66v66.67H186.67v586.66h293.66V-120H186.67Zm426.66-160-47.66-48L684-446.33H360v-67.34h324L565.67-632l47.66-48L814.67-480 613.33-280Z" />
           </svg>

@@ -20,7 +20,7 @@ function EmptyRoomState({ onAddApplicant }) {
       </div>
 
       <h3 className="text-2xl font-semibold text-slate-900">
-        No applicants yet
+        아직 지원자가 없습니다
       </h3>
 
       <p className="mx-auto mt-3 max-w-2xl text-sm text-slate-500">
@@ -52,21 +52,29 @@ function getStatusBadgeClass(status) {
   return "bg-slate-100 text-slate-600";
 }
 
+function getStatusLabel(status) {
+  if (status === "completed") return "완료";
+  if (status === "processing") return "진행 중";
+  if (status === "failed") return "실패";
+  if (status === "waiting") return "대기 중";
+  return "초안";
+}
+
 function stepsLabelByIndex(index) {
   const labels = [
-    "Waiting",
-    "GitHub validation",
-    "Repository structure analysis",
-    "Key file extraction",
-    "Tech stack detection",
-    "LLM request",
-    "Question generation",
-    "Scoring",
-    "Summary formatting",
-    "Completed",
+    "대기 중",
+    "GitHub 검증",
+    "저장소 구조 분석",
+    "핵심 파일 추출",
+    "기술 스택 감지",
+    "LLM 요청",
+    "질문 생성",
+    "점수 계산",
+    "요약 정리",
+    "완료",
   ];
 
-  return labels[index - 1] ?? "Waiting";
+  return labels[index - 1] ?? "대기 중";
 }
 
 function randomScore() {
@@ -148,7 +156,7 @@ export default function RoomDetailPage() {
             ...nextApplicants[nextIndex],
             status: "processing",
             currentStepIndex: 2,
-            currentStep: "GitHub validation",
+            currentStep: "GitHub 검증",
             progress: 10,
             recentLog: "GitHub 저장소 연결을 확인하고 있습니다.",
           };
@@ -157,7 +165,7 @@ export default function RoomDetailPage() {
 
           setActivityFeed((prev) =>
             [
-              `${nextApplicants[nextIndex].name} - GitHub validation 시작`,
+              `${nextApplicants[nextIndex].name} - GitHub 검증 시작`,
               ...prev,
             ].slice(0, 12)
           );
@@ -172,7 +180,7 @@ export default function RoomDetailPage() {
 
           const nextStepLabel =
             nextStepIndex === totalSteps
-              ? "Completed"
+              ? "완료"
               : stepsLabelByIndex(nextStepIndex);
 
           const isCompleted = nextStepIndex === totalSteps;
@@ -188,7 +196,7 @@ export default function RoomDetailPage() {
             ),
             recentLog: getNextProcessingLog(nextStepLabel, applicant.name),
             generatedQuestions:
-              nextStepLabel === "Question generation" ||
+              nextStepLabel === "질문 생성" ||
               applicant.generatedQuestions > 0
                 ? Math.max(applicant.generatedQuestions || 0, 4)
                 : applicant.generatedQuestions || 0,
@@ -215,7 +223,7 @@ export default function RoomDetailPage() {
       normalizeApplicant({
         ...row,
         status: "waiting",
-        currentStep: "Waiting",
+        currentStep: "대기 중",
         currentStepIndex: 1,
         totalSteps: 10,
         progress: 0,
@@ -255,7 +263,7 @@ export default function RoomDetailPage() {
         return {
           ...applicant,
           status: "waiting",
-          currentStep: "Waiting",
+          currentStep: "대기 중",
           currentStepIndex: 1,
           progress: 0,
           recentLog: "분석 대기열에 등록되었습니다.",
@@ -263,7 +271,7 @@ export default function RoomDetailPage() {
       })
     );
 
-    setActivityFeed((prev) => ["Batch analysis started", ...prev].slice(0, 12));
+    setActivityFeed((prev) => ["일괄 분석을 시작했습니다.", ...prev].slice(0, 12));
     setAnalysisStarted(true);
   };
 
@@ -275,15 +283,15 @@ export default function RoomDetailPage() {
   return (
     <DashboardLayout
       rooms={rooms}
-      title={room?.name ?? "Room Summary"}
-      description="Track batch interview analysis progress"
+      title={room?.name ?? "공간 요약"}
+      description="면접 지원자 일괄 분석 진행 현황을 추적할 수 있습니다."
     >
       <div className="space-y-6">
         <section className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
           <div className="flex items-start justify-between">
             <div>
               <h2 className="text-2xl font-semibold text-slate-900">
-                {room?.name ?? "Room"}
+                {room?.name ?? "공간"}
               </h2>
               <p className="mt-1 text-sm text-slate-500">
                 지원자 분석과 질문 생성 현황을 관리하는 공간입니다.
@@ -295,7 +303,7 @@ export default function RoomDetailPage() {
                 onClick={() => setIsAddModalOpen(true)}
                 className="rounded-xl border border-slate-200 px-4 py-2 text-sm font-medium text-slate-700 hover:bg-slate-50"
               >
-                + Add Applicants
+                + 지원자 추가
               </button>
 
               <button
@@ -303,13 +311,13 @@ export default function RoomDetailPage() {
                 disabled={applicants.length === 0}
                 className="rounded-xl bg-blue-500 px-4 py-2 text-sm font-medium text-white hover:bg-blue-600 disabled:cursor-not-allowed disabled:bg-slate-300"
               >
-                Start Analysis
+                분석 시작
               </button>
             </div>
           </div>
         </section>
 
-        {roomStatus === "Empty" ? (
+        {roomStatus === "비어 있음" ? (
           <EmptyRoomState onAddApplicant={() => setIsAddModalOpen(true)} />
         ) : (
           <>
@@ -317,7 +325,7 @@ export default function RoomDetailPage() {
               <div className="flex items-center justify-between">
                 <div>
                   <h3 className="text-lg font-semibold text-slate-900">
-                    Batch Status
+                    일괄 분석 현황
                   </h3>
                   <p className="mt-1 text-sm text-slate-500">
                     전체 진행도는 요약 정보로만 표시됩니다.
@@ -325,7 +333,7 @@ export default function RoomDetailPage() {
                 </div>
 
                 <div className="text-right">
-                  <p className="text-xs text-slate-400">Completed</p>
+                  <p className="text-xs text-slate-400">완료</p>
                   <p className="text-xl font-semibold text-slate-900">
                     {metrics.completed}/{metrics.total}
                   </p>
@@ -341,19 +349,19 @@ export default function RoomDetailPage() {
 
               <div className="mt-4 flex flex-wrap gap-3 text-sm">
                 <div className="rounded-full bg-slate-100 px-3 py-1.5 text-slate-700">
-                  Total {metrics.total}
+                  전체 {metrics.total}
                 </div>
                 <div className="rounded-full bg-slate-100 px-3 py-1.5 text-slate-700">
-                  Completed {metrics.completed}
+                  완료 {metrics.completed}
                 </div>
                 <div className="rounded-full bg-slate-100 px-3 py-1.5 text-slate-700">
-                  In Progress {metrics.inProgress}
+                  진행 중 {metrics.inProgress}
                 </div>
                 <div className="rounded-full bg-slate-100 px-3 py-1.5 text-slate-700">
-                  Waiting {metrics.waiting}
+                  대기 중 {metrics.waiting}
                 </div>
                 <div className="rounded-full bg-slate-100 px-3 py-1.5 text-slate-700">
-                  Failed {metrics.failed}
+                  실패 {metrics.failed}
                 </div>
               </div>
             </section>
@@ -363,7 +371,7 @@ export default function RoomDetailPage() {
                 <div className="mb-5 flex items-center justify-between">
                   <div>
                     <h3 className="text-xl font-semibold text-slate-900">
-                      Applicants
+                      지원자
                     </h3>
                     <p className="mt-1 text-sm text-slate-500">
                       지원자별 분석 상태와 결과 진입점을 확인할 수 있습니다.
@@ -371,7 +379,7 @@ export default function RoomDetailPage() {
                   </div>
 
                   <span className="rounded-full bg-slate-100 px-3 py-1.5 text-sm text-slate-700">
-                    {metrics.total} applicants
+                    지원자 {metrics.total}명
                   </span>
                 </div>
 
@@ -392,7 +400,7 @@ export default function RoomDetailPage() {
                                 applicant.status
                               )}`}
                             >
-                              {applicant.status}
+                              {getStatusLabel(applicant.status)}
                             </span>
                           </div>
 
@@ -408,7 +416,7 @@ export default function RoomDetailPage() {
                           onClick={() => handleOpenApplicantDetail(applicant.id)}
                           className="rounded-xl border border-slate-200 px-4 py-2 text-sm font-medium text-slate-700 hover:bg-slate-50"
                         >
-                          View Detail
+                          상세 보기
                         </button>
                       </div>
 
@@ -432,7 +440,7 @@ export default function RoomDetailPage() {
                         </div>
 
                         <div className="rounded-xl bg-slate-50 px-4 py-3 text-sm">
-                          <p className="text-slate-400">Step</p>
+                          <p className="text-slate-400">단계</p>
                           <p className="mt-1 font-medium text-slate-900">
                             {applicant.currentStepIndex}/{applicant.totalSteps}
                           </p>
@@ -441,7 +449,7 @@ export default function RoomDetailPage() {
 
                       <div className="mt-4 rounded-xl bg-slate-50 px-4 py-3">
                         <p className="text-xs uppercase tracking-wide text-slate-400">
-                          Recent Log
+                          최근 로그
                         </p>
                         <p className="mt-1 text-sm text-slate-600">
                           {applicant.recentLog}
@@ -455,7 +463,7 @@ export default function RoomDetailPage() {
               <aside className="space-y-6">
                 <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
                   <h3 className="text-lg font-semibold text-slate-900">
-                    Live Activity
+                    실시간 활동 로그
                   </h3>
                   <p className="mt-1 text-sm text-slate-500">
                     전체 작업 흐름을 보조적으로 확인할 수 있습니다.
@@ -479,15 +487,15 @@ export default function RoomDetailPage() {
                   </div>
                 </div>
 
-                {roomStatus === "Completed" ? (
+                {roomStatus === "완료" ? (
                   <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
                     <h3 className="text-lg font-semibold text-slate-900">
-                      Batch Summary
+                      일괄 분석 요약
                     </h3>
 
                     <div className="mt-4 space-y-4">
                       <div className="rounded-xl bg-slate-50 p-4">
-                        <p className="text-sm text-slate-400">Average Score</p>
+                        <p className="text-sm text-slate-400">평균 점수</p>
                         <p className="mt-2 text-2xl font-semibold text-slate-900">
                           {metrics.averageScore}
                         </p>
@@ -495,7 +503,7 @@ export default function RoomDetailPage() {
 
                       <div className="rounded-xl bg-slate-50 p-4">
                         <p className="text-sm text-slate-400">
-                          Completed Applicants
+                          분석 완료 지원자
                         </p>
                         <p className="mt-2 text-2xl font-semibold text-slate-900">
                           {metrics.completed}

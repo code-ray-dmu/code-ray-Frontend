@@ -12,6 +12,7 @@ import {
   requestApplicantAnalysis,
 } from '../services/analysis/analysis-api.js';
 import {
+  ANALYSIS_STATUS_LABELS,
   ANALYSIS_STATUS_VALUES,
   DEFAULT_ANALYSIS_POLLING_INTERVAL_MS,
   TERMINAL_ANALYSIS_STATUS_VALUES,
@@ -29,48 +30,48 @@ function getApplicantDetailErrorState(error) {
 
   if (errorCode === 'APPLICANT_NOT_FOUND') {
     return {
-      title: 'Applicant not found',
-      description: 'The requested applicant does not exist or is no longer available.',
+      title: '지원자를 찾을 수 없습니다',
+      description: '요청한 지원자가 없거나 더 이상 사용할 수 없습니다.',
     };
   }
 
   if (errorCode === 'FORBIDDEN_RESOURCE_ACCESS') {
     return {
-      title: 'Access denied',
-      description: 'You do not have permission to view this applicant.',
+      title: '접근 권한이 없습니다',
+      description: '이 지원자 정보를 조회할 권한이 없습니다.',
     };
   }
 
   if (errorCode === 'UNAUTHORIZED' || errorCode === 'AUTH_TOKEN_EXPIRED') {
     return {
-      title: 'Session expired',
-      description: 'Your session is no longer valid. Please sign in again and retry.',
+      title: '세션이 만료되었습니다',
+      description: '다시 로그인한 뒤 시도해 주세요.',
     };
   }
 
   if (error?.response === undefined) {
     return {
-      title: 'Network error',
-      description: 'Unable to reach the server. Please check your connection and try again.',
+      title: '네트워크 오류',
+      description: '서버에 연결할 수 없습니다. 네트워크 상태를 확인한 뒤 다시 시도해 주세요.',
     };
   }
 
   return {
-    title: 'Unable to load applicant',
+    title: '지원자 정보를 불러오지 못했습니다',
     description:
       error instanceof Error && error.message.length > 0
         ? error.message
-        : 'The applicant detail request failed. Please try again.',
+        : '지원자 상세 정보를 불러오지 못했습니다. 다시 시도해 주세요.',
   };
 }
 
 function getApplicantGroupContextErrorState(applicantGroupId, routeGroupId) {
   return {
-    title: 'Group context mismatch',
+    title: '그룹 정보가 일치하지 않습니다',
     description:
       applicantGroupId === null
-        ? 'The applicant detail response did not include a valid group context.'
-        : `This applicant belongs to group "${applicantGroupId}", not "${routeGroupId}".`,
+        ? '지원자 상세 응답에 올바른 그룹 정보가 포함되지 않았습니다.'
+        : `이 지원자는 "${routeGroupId}"가 아니라 "${applicantGroupId}" 그룹에 속해 있습니다.`,
   };
 }
 
@@ -78,104 +79,104 @@ function getAnalysisRequestErrorMessage(error) {
   const errorCode = getApiErrorCode(error);
 
   if (errorCode === 'ANALYSIS_RUN_ALREADY_COMPLETED') {
-    return 'Analysis results already exist for the repositories selected for this applicant.';
+    return '이 지원자에 대한 분석 결과가 이미 존재합니다.';
   }
 
   if (errorCode === 'APPLICANT_NOT_FOUND') {
-    return 'This applicant no longer exists, so a new analysis request cannot be started.';
+    return '지원자를 찾을 수 없어 새 분석 요청을 시작할 수 없습니다.';
   }
 
   if (errorCode === 'FORBIDDEN_RESOURCE_ACCESS') {
-    return 'You do not have permission to start analysis for this applicant.';
+    return '이 지원자에 대한 분석을 시작할 권한이 없습니다.';
   }
 
   if (errorCode === 'UNAUTHORIZED' || errorCode === 'AUTH_TOKEN_EXPIRED') {
-    return 'Your session is no longer valid. Please sign in again and retry.';
+    return '세션이 만료되었습니다. 다시 로그인한 뒤 시도해 주세요.';
   }
 
   if (error?.response === undefined) {
-    return 'Unable to reach the server. Please check your connection and try again.';
+    return '서버에 연결할 수 없습니다. 네트워크 상태를 확인한 뒤 다시 시도해 주세요.';
   }
 
   if (error instanceof Error && error.message.length > 0) {
     return error.message;
   }
 
-  return 'Unable to start the AI analysis. Please try again.';
+  return 'AI 분석을 시작하지 못했습니다. 다시 시도해 주세요.';
 }
 
 function getAnalysisRecoveryErrorMessage(error) {
   const errorCode = getApiErrorCode(error);
 
   if (errorCode === 'FORBIDDEN_RESOURCE_ACCESS') {
-    return 'You do not have permission to load analysis history for this applicant.';
+    return '이 지원자의 분석 이력을 불러올 권한이 없습니다.';
   }
 
   if (errorCode === 'UNAUTHORIZED' || errorCode === 'AUTH_TOKEN_EXPIRED') {
-    return 'Your session is no longer valid. Please sign in again and retry.';
+    return '세션이 만료되었습니다. 다시 로그인한 뒤 시도해 주세요.';
   }
 
   if (error?.response === undefined) {
-    return 'Unable to recover the saved analysis state because the server could not be reached.';
+    return '서버에 연결할 수 없어 저장된 분석 상태를 복구하지 못했습니다.';
   }
 
   if (error instanceof Error && error.message.length > 0) {
     return error.message;
   }
 
-  return 'Unable to recover the saved analysis state for this applicant.';
+  return '이 지원자의 저장된 분석 상태를 복구하지 못했습니다.';
 }
 
 function getAnalysisPollingErrorMessage(error) {
   const errorCode = getApiErrorCode(error);
 
   if (errorCode === 'ANALYSIS_RUN_NOT_FOUND') {
-    return 'One of the requested analysis runs could not be found anymore.';
+    return '요청한 분석 실행 중 일부를 더 이상 찾을 수 없습니다.';
   }
 
   if (errorCode === 'FORBIDDEN_RESOURCE_ACCESS') {
-    return 'You do not have permission to track these analysis runs.';
+    return '이 분석 실행 상태를 조회할 권한이 없습니다.';
   }
 
   if (errorCode === 'UNAUTHORIZED' || errorCode === 'AUTH_TOKEN_EXPIRED') {
-    return 'Your session is no longer valid. Please sign in again and retry.';
+    return '세션이 만료되었습니다. 다시 로그인한 뒤 시도해 주세요.';
   }
 
   if (error?.response === undefined) {
-    return 'Unable to refresh the analysis progress because the server could not be reached.';
+    return '서버에 연결할 수 없어 분석 진행 상태를 새로고침하지 못했습니다.';
   }
 
   if (error instanceof Error && error.message.length > 0) {
     return error.message;
   }
 
-  return 'Unable to refresh the analysis progress right now.';
+  return '지금은 분석 진행 상태를 새로고침할 수 없습니다.';
 }
 
 function getGeneratedQuestionErrorMessage(error) {
   const errorCode = getApiErrorCode(error);
 
   if (errorCode === 'APPLICANT_NOT_FOUND') {
-    return 'This applicant no longer exists, so generated questions cannot be loaded.';
+    return '지원자를 찾을 수 없어 생성된 질문을 불러올 수 없습니다.';
   }
 
   if (errorCode === 'FORBIDDEN_RESOURCE_ACCESS') {
-    return 'You do not have permission to view generated questions for this applicant.';
+    return '이 지원자의 생성 질문을 조회할 권한이 없습니다.';
   }
 
   if (errorCode === 'UNAUTHORIZED' || errorCode === 'AUTH_TOKEN_EXPIRED') {
-    return 'Your session is no longer valid. Please sign in again and retry.';
+    return '세션이 만료되었습니다. 다시 로그인한 뒤 시도해 주세요.';
   }
 
   if (error?.response === undefined) {
-    return 'Unable to reach the server while loading generated questions.';
+    return '생성된 질문을 불러오는 중 서버에 연결할 수 없습니다.';
   }
 
   if (error instanceof Error && error.message.length > 0) {
     return error.message;
   }
 
-  return 'Unable to load the generated interview questions.';
+  return '생성된 면접 질문을 불러오지 못했습니다.';
 }
 
 function ApplicantDetailLoadingState() {
@@ -206,14 +207,14 @@ function ApplicantDetailErrorState({ title, description, onBack, onRetry }) {
           onClick={onBack}
           className="rounded-xl border border-red-200 bg-white px-4 py-2 text-sm font-medium text-red-800 hover:bg-red-100"
         >
-          Back to Applicants
+          지원자 목록으로 돌아가기
         </button>
 
         <button
           onClick={onRetry}
           className="rounded-xl bg-red-600 px-4 py-2 text-sm font-medium text-white hover:bg-red-700"
         >
-          Retry
+          다시 시도
         </button>
       </div>
     </section>
@@ -233,34 +234,34 @@ function ApplicantAnalysisActionPanel({
   requestErrorMessage,
   summary,
 }) {
-  let actionLabel = 'Start AI Analysis';
+  let actionLabel = 'AI 분석 시작';
   let actionDisabled = false;
 
   if (isRequestingAnalysis) {
-    actionLabel = 'Starting Analysis...';
+    actionLabel = '분석 시작 중...';
     actionDisabled = true;
   } else if (summary?.status === ANALYSIS_STATUS_VALUES.QUEUED) {
-    actionLabel = 'Queued for Analysis';
+    actionLabel = '분석 대기 중';
     actionDisabled = true;
   } else if (summary?.status === ANALYSIS_STATUS_VALUES.IN_PROGRESS) {
-    actionLabel = 'Analysis Running...';
+    actionLabel = '분석 진행 중';
     actionDisabled = true;
   } else if (summary?.status === ANALYSIS_STATUS_VALUES.COMPLETED) {
-    actionLabel = 'Analysis Completed';
+    actionLabel = '분석 완료';
     actionDisabled = true;
   } else if (summary?.status === ANALYSIS_STATUS_VALUES.FAILED) {
-    actionLabel = 'Retry Failed Analysis';
+    actionLabel = '실패한 분석 다시 시도';
   }
 
   return (
     <section className="rounded-2xl border border-slate-200 bg-white p-8 shadow-sm">
       <div className="flex flex-wrap items-start justify-between gap-4">
         <div>
-          <p className="text-sm font-medium text-blue-600">Phase 4</p>
-          <h2 className="mt-2 text-2xl font-semibold text-slate-900">AI Analysis</h2>
+          <p className="text-sm font-medium text-blue-600">4단계</p>
+          <h2 className="mt-2 text-2xl font-semibold text-slate-900">AI 분석</h2>
           <p className="mt-3 max-w-3xl text-sm leading-6 text-slate-500">
-            Start repository analysis for this applicant and review the generated interview
-            questions on the same page.
+            이 지원자의 저장소 분석을 시작하고, 같은 화면에서 생성된 면접 질문까지
+            이어서 확인할 수 있습니다.
           </p>
         </div>
 
@@ -281,7 +282,11 @@ function ApplicantAnalysisActionPanel({
               disabled={isLoadingQuestions}
               className="rounded-xl border border-slate-200 bg-white px-4 py-2 text-sm font-medium text-slate-700 hover:bg-slate-50 disabled:cursor-not-allowed disabled:text-slate-400"
             >
-              {isLoadingQuestions ? 'Refreshing Questions...' : hasQuestions ? 'Refresh Questions' : 'Load Questions'}
+              {isLoadingQuestions
+                ? '질문 새로고침 중...'
+                : hasQuestions
+                  ? '질문 새로고침'
+                  : '질문 불러오기'}
             </button>
           ) : null}
         </div>
@@ -289,7 +294,7 @@ function ApplicantAnalysisActionPanel({
 
       {isRecoveringAnalysis ? (
         <div className="mt-6 rounded-2xl border border-slate-200 bg-slate-50 px-5 py-4 text-sm text-slate-600">
-          Recovering saved analysis state for this applicant.
+          이 지원자의 저장된 분석 상태를 복구하는 중입니다.
         </div>
       ) : null}
 
@@ -348,7 +353,7 @@ export function ApplicantDetailPage() {
       : [
           {
             id: applicant.id,
-            name: applicant.name ?? 'Unnamed Applicant',
+            name: applicant.name ?? '이름 없는 지원자',
             href:
               typeof applicant.id === 'string' && typeof effectiveGroupId === 'string'
                 ? `/groups/${effectiveGroupId}/applicants/${applicant.id}`
@@ -369,8 +374,8 @@ export function ApplicantDetailPage() {
     if (typeof applicantId !== 'string' || applicantId.length === 0) {
       setApplicant(null);
       setApplicantErrorState({
-        title: 'Invalid applicant',
-        description: 'A valid applicant identifier is required to load this page.',
+        title: '잘못된 지원자 정보입니다',
+        description: '이 페이지를 불러오려면 올바른 지원자 식별자가 필요합니다.',
       });
       setIsLoadingApplicant(false);
       return;
@@ -668,7 +673,7 @@ export function ApplicantDetailPage() {
 
   async function handleStartAnalysis() {
     if (typeof applicant?.id !== 'string' || applicant.id.length === 0) {
-      setAnalysisRequestErrorMessage('A valid applicant is required before analysis can start.');
+      setAnalysisRequestErrorMessage('분석을 시작하려면 올바른 지원자 정보가 필요합니다.');
       return;
     }
 
@@ -692,18 +697,18 @@ export function ApplicantDetailPage() {
       setAnalysisRuns(queuedAnalysisRuns);
       setLastAnalysisUpdatedAt(new Date().toISOString());
       setAnalysisInfoMessage(
-        'Analysis request accepted. Progress updates will refresh automatically every 3 seconds.',
+        '분석 요청이 접수되었습니다. 진행 상태는 3초마다 자동으로 갱신됩니다.',
       );
     } catch (error) {
       const errorCode = getApiErrorCode(error);
 
       if (errorCode === 'ANALYSIS_RUN_ALREADY_COMPLETED') {
         setAnalysisInfoMessage(
-          'Saved analysis results already exist for this applicant. Loading the existing questions automatically.',
+          '이 지원자의 저장된 분석 결과가 있어 기존 질문을 자동으로 불러옵니다.',
         );
         await recoverAnalysisState({
           conflictMessage:
-            'Saved analysis results were found and loaded automatically for this applicant.',
+            '저장된 분석 결과를 찾아 자동으로 불러왔습니다.',
           preserveInfoMessage: true,
         });
       } else {
@@ -726,9 +731,9 @@ export function ApplicantDetailPage() {
     <DashboardLayout
       rooms={[]}
       recentItems={recentApplicants}
-      recentItemsLabel="Recent Applicants"
-      title="Applicant Detail"
-      description="Review the applicant profile, analysis progress, and generated interview questions."
+      recentItemsLabel="최근 지원자"
+      title="지원자 상세"
+      description="지원자 기본 정보, 분석 진행 상태, 생성된 면접 질문을 한곳에서 확인할 수 있습니다."
     >
       <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_320px]">
         <section className="space-y-6">
@@ -736,7 +741,7 @@ export function ApplicantDetailPage() {
             onClick={handleBack}
             className="rounded-xl border border-slate-200 bg-white px-4 py-2 text-sm font-medium text-slate-700 shadow-sm hover:bg-slate-50"
           >
-            Back to Applicants
+            지원자 목록으로 돌아가기
           </button>
 
           {isLoadingApplicant ? <ApplicantDetailLoadingState /> : null}
@@ -780,7 +785,7 @@ export function ApplicantDetailPage() {
                   questions={questions}
                   isLoading={isLoadingQuestions}
                   errorMessage={questionErrorMessage}
-                  emptyMessage="The analysis completed, but no generated questions were returned for this applicant yet."
+                  emptyMessage="분석은 완료되었지만 아직 이 지원자에 대한 생성 질문이 도착하지 않았습니다."
                 />
               ) : null}
             </>
@@ -789,62 +794,62 @@ export function ApplicantDetailPage() {
 
         <aside className="space-y-6">
           <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
-            <h3 className="mb-4 text-lg font-semibold text-slate-900">Review Workflow</h3>
+            <h3 className="mb-4 text-lg font-semibold text-slate-900">검토 가이드</h3>
 
             <div className="space-y-4 text-sm text-slate-600">
               <div className="rounded-xl bg-slate-50 p-4">
                 <p className="text-xs font-semibold uppercase tracking-wide text-slate-400">
-                  Current Step
+                  현재 단계
                 </p>
                 <p className="mt-2 text-slate-800">
-                  Validate the applicant profile, monitor analysis progress, and review the
-                  generated interview questions before the interview.
+                  면접 전까지 지원자 기본 정보를 확인하고, 분석 진행 상황을 살펴본 뒤,
+                  생성된 면접 질문을 검토하세요.
                 </p>
               </div>
 
               <div className="rounded-xl bg-slate-50 p-4">
                 <p className="text-xs font-semibold uppercase tracking-wide text-slate-400">
-                  Best Next Action
+                  추천 다음 작업
                 </p>
                 <p className="mt-2 text-slate-800">
                   {analysisSummary?.status === ANALYSIS_STATUS_VALUES.COMPLETED
-                    ? 'Refresh and review the generated questions, then move back to the group for the next applicant.'
-                    : 'Start or keep tracking the analysis until the applicant questions are ready.'}
+                    ? '생성된 질문을 새로고침해 확인한 뒤 다음 지원자 검토를 위해 그룹 화면으로 돌아가세요.'
+                    : '질문이 준비될 때까지 분석을 시작하거나 계속 추적해 주세요.'}
                 </p>
               </div>
             </div>
           </div>
 
           <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
-            <h3 className="mb-4 text-lg font-semibold text-slate-900">Navigation Context</h3>
+            <h3 className="mb-4 text-lg font-semibold text-slate-900">이동 정보</h3>
 
             <div className="space-y-4 text-sm text-slate-600">
               <div className="rounded-xl bg-slate-50 p-4">
                 <p className="text-xs font-semibold uppercase tracking-wide text-slate-400">
-                  Group ID
+                  그룹 ID
                 </p>
                 <p className="mt-2 break-all font-medium text-slate-800">{groupId ?? '-'}</p>
               </div>
 
               <div className="rounded-xl bg-slate-50 p-4">
                 <p className="text-xs font-semibold uppercase tracking-wide text-slate-400">
-                  Applicant ID
+                  지원자 ID
                 </p>
                 <p className="mt-2 break-all font-medium text-slate-800">{applicantId ?? '-'}</p>
               </div>
 
               <div className="rounded-xl bg-slate-50 p-4">
                 <p className="text-xs font-semibold uppercase tracking-wide text-slate-400">
-                  Current Analysis Status
+                  현재 분석 상태
                 </p>
                 <p className="mt-2 break-all font-medium text-slate-800">
-                  {analysisSummary?.status ?? '-'}
+                  {ANALYSIS_STATUS_LABELS[analysisSummary?.status] ?? analysisSummary?.status ?? '-'}
                 </p>
               </div>
 
               <div className="rounded-xl bg-slate-50 p-4">
                 <p className="text-xs font-semibold uppercase tracking-wide text-slate-400">
-                  Return Path
+                  돌아갈 경로
                 </p>
                 <p className="mt-2 break-all font-medium text-slate-800">{backDestination}</p>
               </div>

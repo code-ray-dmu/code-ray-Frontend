@@ -16,6 +16,21 @@ function getStepBadgeClass(state) {
   return "bg-slate-100 text-slate-500";
 }
 
+function getStatusLabel(status) {
+  if (status === "completed") return "완료";
+  if (status === "processing") return "진행 중";
+  if (status === "failed") return "실패";
+  if (status === "waiting") return "대기 중";
+  return "초안";
+}
+
+function getStepStateLabel(state) {
+  if (state === "done") return "완료";
+  if (state === "current") return "진행 중";
+  if (state === "failed") return "실패";
+  return "대기";
+}
+
 function TabButton({ active, children, onClick }) {
   return (
     <button
@@ -35,7 +50,7 @@ function SummaryTab({ applicant }) {
   return (
     <div className="space-y-5">
       <section className="rounded-2xl border border-slate-200 p-5">
-        <h3 className="text-lg font-semibold text-slate-900">AI Summary</h3>
+        <h3 className="text-lg font-semibold text-slate-900">AI 요약</h3>
         <p className="mt-4 text-sm leading-7 text-slate-600">
           이 지원자는 저장소 구조와 컴포넌트 분리 관점에서 비교적 안정적인 설계를
           보여주었습니다. React 기반 UI 구조가 명확하고, 기능 단위로 파일이
@@ -47,7 +62,7 @@ function SummaryTab({ applicant }) {
 
       <div className="grid grid-cols-2 gap-4">
         <section className="rounded-2xl border border-slate-200 p-5">
-          <h3 className="text-base font-semibold text-slate-900">Strengths</h3>
+          <h3 className="text-base font-semibold text-slate-900">강점</h3>
           <ul className="mt-4 space-y-3 text-sm text-slate-600">
             <li>컴포넌트 구조가 비교적 명확하게 분리되어 있음</li>
             <li>기술 스택 사용 의도가 코드에서 드러남</li>
@@ -57,7 +72,7 @@ function SummaryTab({ applicant }) {
 
         <section className="rounded-2xl border border-slate-200 p-5">
           <h3 className="text-base font-semibold text-slate-900">
-            Improvement Points
+            보완 포인트
           </h3>
           <ul className="mt-4 space-y-3 text-sm text-slate-600">
             <li>테스트 코드와 검증 흐름이 상대적으로 약함</li>
@@ -69,27 +84,27 @@ function SummaryTab({ applicant }) {
 
       <div className="grid grid-cols-4 gap-4">
         <div className="rounded-2xl bg-slate-50 p-4">
-          <p className="text-sm text-slate-400">Overall Score</p>
+          <p className="text-sm text-slate-400">종합 점수</p>
           <p className="mt-2 text-2xl font-semibold text-slate-900">
             {applicant.score ?? "-"}
           </p>
         </div>
 
         <div className="rounded-2xl bg-slate-50 p-4">
-          <p className="text-sm text-slate-400">Generated Questions</p>
+          <p className="text-sm text-slate-400">생성된 질문 수</p>
           <p className="mt-2 text-2xl font-semibold text-slate-900">
             {applicant.generatedQuestions ?? 0}
           </p>
         </div>
 
         <div className="rounded-2xl bg-slate-50 p-4">
-          <p className="text-sm text-slate-400">Repository Readiness</p>
-          <p className="mt-2 text-base font-semibold text-slate-900">High</p>
+          <p className="text-sm text-slate-400">저장소 완성도</p>
+          <p className="mt-2 text-base font-semibold text-slate-900">높음</p>
         </div>
 
         <div className="rounded-2xl bg-slate-50 p-4">
-          <p className="text-sm text-slate-400">Collaboration Fit</p>
-          <p className="mt-2 text-base font-semibold text-slate-900">Medium</p>
+          <p className="text-sm text-slate-400">협업 적합도</p>
+          <p className="mt-2 text-base font-semibold text-slate-900">보통</p>
         </div>
       </div>
     </div>
@@ -102,7 +117,7 @@ function QuestionCard({ question, index }) {
       <div className="flex items-start justify-between gap-4">
         <div>
           <p className="text-xs font-semibold uppercase tracking-wide text-slate-400">
-            Question {index + 1}
+            질문 {index + 1}
           </p>
           <h3 className="mt-2 text-base font-semibold text-slate-900">
             {question.title}
@@ -116,14 +131,14 @@ function QuestionCard({ question, index }) {
 
       <div className="mt-5 grid grid-cols-2 gap-4">
         <div className="rounded-xl bg-slate-50 p-4">
-          <p className="text-sm font-medium text-slate-900">Why this question?</p>
+          <p className="text-sm font-medium text-slate-900">이 질문을 하는 이유</p>
           <p className="mt-2 text-sm leading-6 text-slate-600">
             {question.intent}
           </p>
         </div>
 
         <div className="rounded-xl bg-slate-50 p-4">
-          <p className="text-sm font-medium text-slate-900">What to assess</p>
+          <p className="text-sm font-medium text-slate-900">확인할 역량</p>
           <p className="mt-2 text-sm leading-6 text-slate-600">
             {question.assessmentPoint}
           </p>
@@ -131,7 +146,7 @@ function QuestionCard({ question, index }) {
       </div>
 
       <div className="mt-4 rounded-xl bg-slate-50 p-4">
-        <p className="text-sm font-medium text-slate-900">Follow-up Questions</p>
+        <p className="text-sm font-medium text-slate-900">후속 질문</p>
         <div className="mt-3 space-y-2">
           {question.followUps.map((followUp, followIndex) => (
             <div
@@ -151,7 +166,7 @@ function QuestionsTab() {
   const questions = [
     {
       title: "프로젝트에서 상태 관리를 어떤 기준으로 분리했나요?",
-      category: "Architecture",
+      category: "아키텍처",
       intent:
         "상태 관리 구조를 어떤 기준으로 설계했는지 확인하기 위한 질문입니다. 단순 구현이 아니라 상태의 책임 분리와 유지보수 관점을 함께 봅니다.",
       assessmentPoint:
@@ -164,7 +179,7 @@ function QuestionsTab() {
     },
     {
       title: "컴포넌트 구조를 이렇게 나눈 이유는 무엇인가요?",
-      category: "Component Design",
+      category: "컴포넌트 설계",
       intent:
         "컴포넌트 분리가 단순 파일 쪼개기가 아니라 재사용성과 역할 분리를 고려한 것인지 확인하기 위한 질문입니다.",
       assessmentPoint:
@@ -177,7 +192,7 @@ function QuestionsTab() {
     },
     {
       title: "에러 처리나 예외 상황은 어떻게 설계했나요?",
-      category: "Stability",
+      category: "안정성",
       intent:
         "정상 흐름뿐 아니라 실패 상황까지 고려했는지 확인하기 위한 질문입니다.",
       assessmentPoint:
@@ -204,12 +219,12 @@ function EvaluationTab() {
     <div className="space-y-5">
       <section className="rounded-2xl border border-slate-200 p-5">
         <h3 className="text-lg font-semibold text-slate-900">
-          Evaluation Overview
+          평가 개요
         </h3>
 
         <div className="mt-4 grid grid-cols-2 gap-4">
           <div className="rounded-xl bg-slate-50 p-4">
-            <p className="text-sm text-slate-400">Code Quality</p>
+            <p className="text-sm text-slate-400">코드 품질</p>
             <p className="mt-2 text-xl font-semibold text-slate-900">85</p>
             <p className="mt-2 text-sm leading-6 text-slate-600">
               구조가 비교적 안정적이고, 일관된 스타일이 보입니다.
@@ -217,7 +232,7 @@ function EvaluationTab() {
           </div>
 
           <div className="rounded-xl bg-slate-50 p-4">
-            <p className="text-sm text-slate-400">Architecture</p>
+            <p className="text-sm text-slate-400">아키텍처</p>
             <p className="mt-2 text-xl font-semibold text-slate-900">80</p>
             <p className="mt-2 text-sm leading-6 text-slate-600">
               역할 분리는 잘 되어 있으나 확장성 검토는 추가로 필요합니다.
@@ -225,7 +240,7 @@ function EvaluationTab() {
           </div>
 
           <div className="rounded-xl bg-slate-50 p-4">
-            <p className="text-sm text-slate-400">Testing</p>
+            <p className="text-sm text-slate-400">테스트</p>
             <p className="mt-2 text-xl font-semibold text-slate-900">60</p>
             <p className="mt-2 text-sm leading-6 text-slate-600">
               테스트 관점의 근거가 약해 보이며 보완 가능성이 있습니다.
@@ -233,7 +248,7 @@ function EvaluationTab() {
           </div>
 
           <div className="rounded-xl bg-slate-50 p-4">
-            <p className="text-sm text-slate-400">Collaboration</p>
+            <p className="text-sm text-slate-400">협업</p>
             <p className="mt-2 text-xl font-semibold text-slate-900">75</p>
             <p className="mt-2 text-sm leading-6 text-slate-600">
               코드 설명력과 문서화가 조금 더 갖춰지면 협업 적합도가 높아집니다.
@@ -244,7 +259,7 @@ function EvaluationTab() {
 
       <section className="rounded-2xl border border-slate-200 p-5">
         <h3 className="text-lg font-semibold text-slate-900">
-          Final Comment
+          최종 코멘트
         </h3>
         <p className="mt-3 text-sm leading-7 text-slate-600">
           이 지원자는 실제 구현 역량을 충분히 보여주고 있으며, 특히 구조 분해와
@@ -253,7 +268,7 @@ function EvaluationTab() {
         </p>
 
         <div className="mt-5 rounded-xl bg-slate-50 p-4">
-          <p className="text-sm text-slate-400">Recommended Interview Focus</p>
+          <p className="text-sm text-slate-400">추천 면접 포인트</p>
           <p className="mt-2 text-sm leading-6 text-slate-700">
             상태 관리 기준, 컴포넌트 설계 의도, 테스트 전략, 예외 처리 방식 중심
           </p>
@@ -269,7 +284,7 @@ function ProgressSection({ applicant }) {
       <div className="mb-4 flex items-center justify-between">
         <div>
           <h3 className="text-lg font-semibold text-slate-900">
-            Analysis Progress
+            분석 진행 현황
           </h3>
           <p className="mt-1 text-sm text-slate-500">
             현재 분석 단계와 처리 상태입니다.
@@ -277,7 +292,7 @@ function ProgressSection({ applicant }) {
         </div>
 
         <div className="text-right">
-          <p className="text-xs text-slate-400">Progress</p>
+          <p className="text-xs text-slate-400">진행률</p>
           <p className="text-2xl font-semibold text-slate-900">
             {applicant.progress}%
           </p>
@@ -303,7 +318,7 @@ function ProgressSection({ applicant }) {
                 step.state
               )}`}
             >
-              {step.state}
+              {getStepStateLabel(step.state)}
             </span>
           </div>
         ))}
@@ -354,7 +369,7 @@ export default function ApplicantDetailModal({
                     applicant.status
                   )}`}
                 >
-                  {applicant.status}
+                  {getStatusLabel(applicant.status)}
                 </span>
               </div>
 
@@ -366,7 +381,7 @@ export default function ApplicantDetailModal({
               onClick={onClose}
               className="shrink-0 rounded-xl border border-slate-200 px-3 py-2 text-sm font-medium text-slate-600 hover:bg-slate-50"
             >
-              Close
+              닫기
             </button>
           </div>
 
@@ -389,42 +404,42 @@ export default function ApplicantDetailModal({
               </div>
 
               <div className="rounded-2xl bg-slate-50 px-4 py-3">
-                <p className="text-xs text-slate-400">Step</p>
+                <p className="text-xs text-slate-400">단계</p>
                 <p className="mt-1 text-base font-semibold text-slate-900">
                   {applicant.currentStepIndex}/{applicant.totalSteps}
                 </p>
               </div>
 
               <div className="rounded-2xl bg-slate-50 px-4 py-3">
-                <p className="text-xs text-slate-400">Score</p>
+                <p className="text-xs text-slate-400">점수</p>
                 <p className="mt-1 text-base font-semibold text-slate-900">-</p>
               </div>
             </div>
           ) : (
             <div className="mt-5 grid grid-cols-4 gap-4">
               <div className="rounded-2xl bg-slate-50 px-4 py-3">
-                <p className="text-xs text-slate-400">Overall Score</p>
+                <p className="text-xs text-slate-400">종합 점수</p>
                 <p className="mt-1 text-base font-semibold text-slate-900">
                   {applicant.score ?? "-"}
                 </p>
               </div>
 
               <div className="rounded-2xl bg-slate-50 px-4 py-3">
-                <p className="text-xs text-slate-400">Generated Questions</p>
+                <p className="text-xs text-slate-400">생성된 질문 수</p>
                 <p className="mt-1 text-base font-semibold text-slate-900">
                   {applicant.generatedQuestions ?? 0}
                 </p>
               </div>
 
               <div className="rounded-2xl bg-slate-50 px-4 py-3">
-                <p className="text-xs text-slate-400">Final Step</p>
+                <p className="text-xs text-slate-400">마지막 단계</p>
                 <p className="mt-1 text-base font-semibold text-slate-900">
                   {applicant.currentStep}
                 </p>
               </div>
 
               <div className="rounded-2xl bg-slate-50 px-4 py-3">
-                <p className="text-xs text-slate-400">Recent Log</p>
+                <p className="text-xs text-slate-400">최근 로그</p>
                 <p className="mt-1 text-sm font-medium text-slate-900">
                   완료
                 </p>
@@ -441,21 +456,21 @@ export default function ApplicantDetailModal({
                   active={activeTab === "summary"}
                   onClick={() => setActiveTab("summary")}
                 >
-                  Summary
+                  요약
                 </TabButton>
 
                 <TabButton
                   active={activeTab === "questions"}
                   onClick={() => setActiveTab("questions")}
                 >
-                  Questions
+                  질문
                 </TabButton>
 
                 <TabButton
                   active={activeTab === "evaluation"}
                   onClick={() => setActiveTab("evaluation")}
                 >
-                  Evaluation
+                  평가
                 </TabButton>
               </div>
 

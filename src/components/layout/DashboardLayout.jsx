@@ -4,7 +4,7 @@ import Sidebar from "./Sidebar";
 export default function DashboardLayout({
   rooms = [],
   recentItems = rooms,
-  recentItemsLabel = 'Recent Rooms',
+  recentItemsLabel = '최근 항목',
   title,
   description,
   actionLabel,

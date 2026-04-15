@@ -39,38 +39,38 @@ function getGroupDetailErrorState(error) {
 
   if (errorCode === 'GROUP_NOT_FOUND') {
     return {
-      title: 'Group not found',
-      description: 'The requested group does not exist or is no longer available.',
+      title: '그룹을 찾을 수 없습니다',
+      description: '요청한 그룹이 없거나 더 이상 사용할 수 없습니다.',
     };
   }
 
   if (errorCode === 'FORBIDDEN_RESOURCE_ACCESS') {
     return {
-      title: 'Access denied',
-      description: 'You do not have permission to view this group.',
+      title: '접근 권한이 없습니다',
+      description: '이 그룹을 조회할 권한이 없습니다.',
     };
   }
 
   if (errorCode === 'UNAUTHORIZED' || errorCode === 'AUTH_TOKEN_EXPIRED') {
     return {
-      title: 'Session expired',
-      description: 'Your session is no longer valid. Please sign in again and retry.',
+      title: '세션이 만료되었습니다',
+      description: '다시 로그인한 뒤 시도해 주세요.',
     };
   }
 
   if (error?.response === undefined) {
     return {
-      title: 'Network error',
-      description: 'Unable to reach the server. Please check your connection and try again.',
+      title: '네트워크 오류',
+      description: '서버에 연결할 수 없습니다. 네트워크 상태를 확인한 뒤 다시 시도해 주세요.',
     };
   }
 
   return {
-    title: 'Unable to load group',
+    title: '그룹을 불러오지 못했습니다',
     description:
       error instanceof Error && error.message.length > 0
         ? error.message
-        : 'The group detail request failed. Please try again.',
+        : '그룹 상세 정보를 불러오지 못했습니다. 다시 시도해 주세요.',
   };
 }
 
@@ -78,104 +78,104 @@ function getApplicantListErrorMessage(error) {
   const errorCode = getApiErrorCode(error);
 
   if (errorCode === 'UNAUTHORIZED' || errorCode === 'AUTH_TOKEN_EXPIRED') {
-    return 'Your session is no longer valid. Please sign in again and retry.';
+    return '세션이 만료되었습니다. 다시 로그인한 뒤 시도해 주세요.';
   }
 
   if (errorCode === 'FORBIDDEN_RESOURCE_ACCESS') {
-    return 'You do not have permission to view applicants for this group.';
+    return '이 그룹의 지원자 목록을 조회할 권한이 없습니다.';
   }
 
   if (errorCode === 'GROUP_NOT_FOUND') {
-    return 'This group no longer exists, so its applicants cannot be loaded.';
+    return '그룹을 찾을 수 없어 지원자 목록을 불러올 수 없습니다.';
   }
 
   if (error?.response === undefined) {
-    return 'Unable to reach the server. Please check your connection and try again.';
+    return '서버에 연결할 수 없습니다. 네트워크 상태를 확인한 뒤 다시 시도해 주세요.';
   }
 
   if (error instanceof Error && error.message.length > 0) {
     return error.message;
   }
 
-  return 'The applicant list request failed. Please try again.';
+  return '지원자 목록을 불러오지 못했습니다. 다시 시도해 주세요.';
 }
 
 function getBatchAnalysisRequestErrorMessage(error) {
   const errorCode = getApiErrorCode(error);
 
   if (errorCode === 'ANALYSIS_RUN_ALREADY_COMPLETED') {
-    return 'Completed analysis already exists for this applicant.';
+    return '이 지원자는 이미 완료된 분석 결과가 있습니다.';
   }
 
   if (errorCode === 'APPLICANT_NOT_FOUND') {
-    return 'This applicant no longer exists, so analysis could not be started.';
+    return '지원자를 찾을 수 없어 분석을 시작할 수 없습니다.';
   }
 
   if (errorCode === 'FORBIDDEN_RESOURCE_ACCESS') {
-    return 'You do not have permission to start analysis for this applicant.';
+    return '이 지원자에 대한 분석을 시작할 권한이 없습니다.';
   }
 
   if (errorCode === 'UNAUTHORIZED' || errorCode === 'AUTH_TOKEN_EXPIRED') {
-    return 'Your session is no longer valid. Please sign in again and retry.';
+    return '세션이 만료되었습니다. 다시 로그인한 뒤 시도해 주세요.';
   }
 
   if (error?.response === undefined) {
-    return 'Unable to reach the server. Please check your connection and try again.';
+    return '서버에 연결할 수 없습니다. 네트워크 상태를 확인한 뒤 다시 시도해 주세요.';
   }
 
   if (error instanceof Error && error.message.length > 0) {
     return error.message;
   }
 
-  return 'Unable to start the AI analysis for this applicant.';
+  return '이 지원자에 대한 AI 분석을 시작하지 못했습니다.';
 }
 
 function getBatchAnalysisRecoveryErrorMessage(error) {
   const errorCode = getApiErrorCode(error);
 
   if (errorCode === 'FORBIDDEN_RESOURCE_ACCESS') {
-    return 'You do not have permission to recover saved analysis for this applicant.';
+    return '이 지원자의 저장된 분석 결과를 복구할 권한이 없습니다.';
   }
 
   if (errorCode === 'UNAUTHORIZED' || errorCode === 'AUTH_TOKEN_EXPIRED') {
-    return 'Your session is no longer valid. Please sign in again and retry.';
+    return '세션이 만료되었습니다. 다시 로그인한 뒤 시도해 주세요.';
   }
 
   if (error?.response === undefined) {
-    return 'Unable to recover saved analysis because the server could not be reached.';
+    return '서버에 연결할 수 없어 저장된 분석 결과를 복구하지 못했습니다.';
   }
 
   if (error instanceof Error && error.message.length > 0) {
     return error.message;
   }
 
-  return 'Unable to recover the saved analysis state for this applicant.';
+  return '이 지원자의 저장된 분석 상태를 복구하지 못했습니다.';
 }
 
 function getBatchAnalysisPollingErrorMessage(error) {
   const errorCode = getApiErrorCode(error);
 
   if (errorCode === 'ANALYSIS_RUN_NOT_FOUND') {
-    return 'One of the tracked analysis runs could not be found anymore.';
+    return '추적 중인 분석 실행 중 일부를 더 이상 찾을 수 없습니다.';
   }
 
   if (errorCode === 'FORBIDDEN_RESOURCE_ACCESS') {
-    return 'You do not have permission to track this applicant analysis.';
+    return '이 지원자 분석 진행 상태를 조회할 권한이 없습니다.';
   }
 
   if (errorCode === 'UNAUTHORIZED' || errorCode === 'AUTH_TOKEN_EXPIRED') {
-    return 'Your session is no longer valid. Please sign in again and retry.';
+    return '세션이 만료되었습니다. 다시 로그인한 뒤 시도해 주세요.';
   }
 
   if (error?.response === undefined) {
-    return 'Unable to refresh analysis progress because the server could not be reached.';
+    return '서버에 연결할 수 없어 분석 진행 상태를 새로고침하지 못했습니다.';
   }
 
   if (error instanceof Error && error.message.length > 0) {
     return error.message;
   }
 
-  return 'Unable to refresh analysis progress right now.';
+  return '지금은 분석 진행 상태를 새로고침할 수 없습니다.';
 }
 
 function createEmptyApplicantAnalysisState() {
@@ -299,14 +299,14 @@ function GroupDetailErrorState({ title, description, onBack, onRetry }) {
           onClick={onBack}
           className="rounded-xl border border-red-200 bg-white px-4 py-2 text-sm font-medium text-red-800 hover:bg-red-100"
         >
-          Back to Groups
+          그룹 목록으로 돌아가기
         </button>
 
         <button
           onClick={onRetry}
           className="rounded-xl bg-red-600 px-4 py-2 text-sm font-medium text-white hover:bg-red-700"
         >
-          Retry
+          다시 시도
         </button>
       </div>
     </section>
@@ -379,7 +379,7 @@ export function GroupDetailPage() {
       : [
           {
             id: group.id,
-            name: group.name ?? 'Untitled Group',
+            name: group.name ?? '이름 없는 그룹',
             href: typeof group.id === 'string' ? `/groups/${group.id}` : '/dashboard',
           },
         ];
@@ -496,8 +496,8 @@ export function GroupDetailPage() {
     if (typeof groupId !== 'string' || groupId.length === 0) {
       setGroup(null);
       setGroupErrorState({
-        title: 'Invalid group',
-        description: 'A valid group identifier is required to load this page.',
+        title: '잘못된 그룹 정보입니다',
+        description: '이 페이지를 불러오려면 올바른 그룹 식별자가 필요합니다.',
       });
       setIsLoadingGroup(false);
       return;
@@ -556,7 +556,7 @@ export function GroupDetailPage() {
         total: 0,
         requestId: null,
       });
-      setApplicantListErrorMessage('A valid group identifier is required to load applicants.');
+      setApplicantListErrorMessage('지원자 목록을 불러오려면 올바른 그룹 식별자가 필요합니다.');
       setIsLoadingApplicants(false);
       return;
     }
@@ -772,7 +772,7 @@ export function GroupDetailPage() {
               mergedAnalysisRuns.some((analysisRun) => {
                 return analysisRun.status === ANALYSIS_STATUS_VALUES.COMPLETED;
               })
-                ? 'Questions are ready to review.'
+                ? '질문이 준비되었습니다. 바로 확인할 수 있습니다.'
                 : '',
           };
         }),
@@ -878,8 +878,8 @@ export function GroupDetailPage() {
   function handleApplicantCreated({ applicantName }) {
     setApplicantCreationSuccessMessage(
       applicantName.length > 0
-        ? `Applicant "${applicantName}" was created successfully. The list has been refreshed.`
-        : 'Applicant was created successfully. The list has been refreshed.',
+        ? `"${applicantName}" 지원자가 등록되었습니다. 목록을 새로고침했습니다.`
+        : '지원자가 등록되었습니다. 목록을 새로고침했습니다.',
     );
     setApplicantRetryCount((previousRetryCount) => previousRetryCount + 1);
   }
@@ -956,7 +956,7 @@ export function GroupDetailPage() {
             isRequesting: false,
             requestErrorMessage: '',
             pollingErrorMessage: '',
-            infoMessage: 'Analysis queued. Live progress updates started.',
+            infoMessage: '분석 요청이 접수되었습니다. 실시간 진행 상태 추적을 시작합니다.',
           });
 
           return;
@@ -991,7 +991,7 @@ export function GroupDetailPage() {
               isRequesting: false,
               requestErrorMessage: '',
               pollingErrorMessage: '',
-              infoMessage: 'Existing completed analysis found. Saved questions are ready.',
+                infoMessage: '기존 완료된 분석 결과를 찾았습니다. 저장된 질문을 바로 확인할 수 있습니다.',
             });
 
             return;
@@ -1056,18 +1056,18 @@ export function GroupDetailPage() {
       const infoMessages = [];
 
       if (queuedApplicantIds.length > 0) {
-        infoMessages.push(`${queuedApplicantIds.length} applicants were queued for analysis.`);
+        infoMessages.push(`${queuedApplicantIds.length}명의 지원자 분석 요청을 접수했습니다.`);
       }
 
       if (recoveredStateUpdates.size > 0) {
         infoMessages.push(
-          `${recoveredStateUpdates.size} applicants already had completed analysis and were recovered.`,
+          `${recoveredStateUpdates.size}명의 지원자는 기존 완료 분석 결과를 불러왔습니다.`,
         );
       }
 
       setBatchAnalysisInfoMessage(infoMessages.join(' '));
       setBatchAnalysisErrorMessage(
-        failureCount > 0 ? `${failureCount} applicants could not start analysis.` : '',
+        failureCount > 0 ? `${failureCount}명의 지원자는 분석을 시작하지 못했습니다.` : '',
       );
     } finally {
       setIsStartingBatchAnalysis(false);
@@ -1078,9 +1078,9 @@ export function GroupDetailPage() {
     <DashboardLayout
       rooms={[]}
       recentItems={recentGroups}
-      recentItemsLabel="Recent Groups"
-      title="Group Detail"
-      description="Run parallel applicant analysis from one list and watch every row update live."
+      recentItemsLabel="최근 그룹"
+      title="그룹 상세"
+      description="한 화면에서 지원자 분석을 일괄 실행하고 각 지원자의 진행 상태를 실시간으로 확인할 수 있습니다."
     >
       <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_320px]">
         <section className="space-y-6">
@@ -1088,7 +1088,7 @@ export function GroupDetailPage() {
             onClick={handleBack}
             className="rounded-xl border border-slate-200 bg-white px-4 py-2 text-sm font-medium text-slate-700 shadow-sm hover:bg-slate-50"
           >
-            Back to Groups
+            그룹 목록으로 돌아가기
           </button>
 
           {isLoadingGroup ? <GroupDetailLoadingState /> : null}
@@ -1117,7 +1117,7 @@ export function GroupDetailPage() {
                 batchErrorMessage={batchAnalysisErrorMessage}
                 batchInfoMessage={batchAnalysisInfoMessage}
                 canStartAnalysis={startableApplicantCount > 0}
-                emptyActionLabel="Add Applicant"
+                emptyActionLabel="지원자 추가"
                 isLoading={isLoadingApplicants}
                 isStartingAnalysis={isStartingBatchAnalysis}
                 errorMessage={applicantListErrorMessage}
@@ -1142,53 +1142,52 @@ export function GroupDetailPage() {
 
         <aside className="space-y-6">
           <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
-            <h3 className="mb-4 text-lg font-semibold text-slate-900">Group Workflow</h3>
+            <h3 className="mb-4 text-lg font-semibold text-slate-900">그룹 진행 가이드</h3>
 
             <div className="space-y-4 text-sm text-slate-600">
               <div className="rounded-xl bg-slate-50 p-4">
                 <p className="text-xs font-semibold uppercase tracking-wide text-slate-400">
-                  Current Focus
+                  현재 할 일
                 </p>
                 <p className="mt-2 text-slate-800">
-                  Build the applicant queue for this group and start analysis when candidates are
-                  ready.
+                  이 그룹의 지원자 목록을 구성하고, 준비된 지원자부터 분석을 시작하세요.
                 </p>
               </div>
 
               <div className="rounded-xl bg-slate-50 p-4">
                 <p className="text-xs font-semibold uppercase tracking-wide text-slate-400">
-                  Best Next Action
+                  추천 다음 작업
                 </p>
                 <p className="mt-2 text-slate-800">
                   {startableApplicantCount > 0
-                    ? 'Start batch analysis to generate interview questions for the ready applicants.'
-                    : 'Add more applicants or wait for the running analysis jobs to finish.'}
+                    ? '준비된 지원자들에 대해 일괄 분석을 시작해 면접 질문을 생성해 보세요.'
+                    : '지원자를 더 추가하거나 이미 실행 중인 분석이 끝날 때까지 기다려 주세요.'}
                 </p>
               </div>
             </div>
           </div>
 
           <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
-            <h3 className="mb-4 text-lg font-semibold text-slate-900">Batch Overview</h3>
+            <h3 className="mb-4 text-lg font-semibold text-slate-900">일괄 분석 현황</h3>
 
             <div className="space-y-4 text-sm text-slate-600">
               <div className="rounded-xl bg-slate-50 p-4">
                 <p className="text-xs font-semibold uppercase tracking-wide text-slate-400">
-                  Ready to Start
+                  시작 가능
                 </p>
                 <p className="mt-2 break-all font-medium text-slate-800">{batchSummary.ready}</p>
               </div>
 
               <div className="rounded-xl bg-slate-50 p-4">
                 <p className="text-xs font-semibold uppercase tracking-wide text-slate-400">
-                  Queued
+                  대기 중
                 </p>
                 <p className="mt-2 break-all font-medium text-slate-800">{batchSummary.queued}</p>
               </div>
 
               <div className="rounded-xl bg-slate-50 p-4">
                 <p className="text-xs font-semibold uppercase tracking-wide text-slate-400">
-                  In Progress
+                  진행 중
                 </p>
                 <p className="mt-2 break-all font-medium text-slate-800">
                   {batchSummary.inProgress}
@@ -1197,7 +1196,7 @@ export function GroupDetailPage() {
 
               <div className="rounded-xl bg-slate-50 p-4">
                 <p className="text-xs font-semibold uppercase tracking-wide text-slate-400">
-                  Completed
+                  완료
                 </p>
                 <p className="mt-2 break-all font-medium text-slate-800">
                   {batchSummary.completed}
@@ -1206,17 +1205,17 @@ export function GroupDetailPage() {
 
               <div className="rounded-xl bg-slate-50 p-4">
                 <p className="text-xs font-semibold uppercase tracking-wide text-slate-400">
-                  Failed
+                  실패
                 </p>
                 <p className="mt-2 break-all font-medium text-slate-800">{batchSummary.failed}</p>
               </div>
 
               <div className="rounded-xl bg-slate-50 p-4">
                 <p className="text-xs font-semibold uppercase tracking-wide text-slate-400">
-                  Polling
+                  상태 확인 주기
                 </p>
                 <p className="mt-2 break-all font-medium text-slate-800">
-                  Every {DEFAULT_ANALYSIS_POLLING_INTERVAL_MS / 1000} seconds
+                  {DEFAULT_ANALYSIS_POLLING_INTERVAL_MS / 1000}초마다 갱신
                 </p>
               </div>
             </div>

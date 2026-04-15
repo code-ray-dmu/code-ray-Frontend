@@ -143,7 +143,7 @@ function ApplicantAnalysisRow({ item, onViewQuestions }) {
         <div className="min-w-0">
           <div className="flex flex-wrap items-center gap-3">
             <h3 className="truncate text-xl font-semibold text-slate-900">
-              {item.applicant.name ?? 'Unnamed Applicant'}
+              {item.applicant.name ?? '이름 없는 지원자'}
             </h3>
             <span
               className={`rounded-full px-3 py-1 text-xs font-semibold ${getStatusClassName(
@@ -156,7 +156,7 @@ function ApplicantAnalysisRow({ item, onViewQuestions }) {
           </div>
 
           <p className="mt-2 text-sm text-slate-500">
-            {item.applicant.email ?? 'Email unavailable'}
+            {item.applicant.email ?? '이메일 정보 없음'}
           </p>
         </div>
 
@@ -246,9 +246,9 @@ export function ApplicantListSection({
     return (
       <section className="space-y-6">
         <div>
-          <h3 className="text-lg font-semibold text-slate-900">Applicant Batch Analysis</h3>
+          <h3 className="text-lg font-semibold text-slate-900">지원자 일괄 분석</h3>
           <p className="mt-1 text-sm text-slate-500">
-            Loading the applicants for this group.
+            이 그룹의 지원자 목록을 불러오는 중입니다.
           </p>
         </div>
 
@@ -264,14 +264,14 @@ export function ApplicantListSection({
   if (errorMessage !== null) {
     return (
       <section className="rounded-2xl border border-red-200 bg-red-50 p-6">
-        <h3 className="text-lg font-semibold text-red-900">Unable to load applicants</h3>
+        <h3 className="text-lg font-semibold text-red-900">지원자 목록을 불러오지 못했습니다</h3>
         <p className="mt-2 text-sm text-red-700">{errorMessage}</p>
 
         <button
           onClick={onRetry}
           className="mt-4 rounded-xl bg-red-600 px-4 py-2 text-sm font-medium text-white hover:bg-red-700"
         >
-          Retry
+          다시 시도
         </button>
       </section>
     );
@@ -280,9 +280,9 @@ export function ApplicantListSection({
   if (analysisItems.length === 0) {
     return (
       <section className="rounded-2xl border border-dashed border-slate-300 bg-white p-10 text-center shadow-sm">
-        <h3 className="text-xl font-semibold text-slate-900">No applicants yet</h3>
+        <h3 className="text-xl font-semibold text-slate-900">아직 지원자가 없습니다</h3>
         <p className="mt-2 text-sm text-slate-500">
-          Add multiple applicants first, then start parallel analysis from this list.
+          먼저 지원자를 여러 명 추가한 뒤 이 목록에서 일괄 분석을 시작해 보세요.
         </p>
         {emptyActionLabel ? (
           <button
@@ -301,12 +301,12 @@ export function ApplicantListSection({
     <section className="space-y-6">
       <div className="flex flex-wrap items-end justify-between gap-4">
         <div>
-          <h3 className="text-lg font-semibold text-slate-900">Applicant Batch Analysis</h3>
+          <h3 className="text-lg font-semibold text-slate-900">지원자 일괄 분석</h3>
           <p className="mt-1 text-sm text-slate-500">
-            Start analysis for multiple applicants in parallel and track row-level progress live.
+            여러 지원자의 분석을 한 번에 시작하고 각 행의 진행 상태를 실시간으로 확인할 수 있습니다.
           </p>
           <p className="mt-2 text-sm text-slate-500">
-            {totalApplicants} total applicants belong to this group.
+            이 그룹에는 총 {totalApplicants}명의 지원자가 있습니다.
           </p>
         </div>
 
@@ -316,7 +316,7 @@ export function ApplicantListSection({
             onClick={onAddApplicant}
             className="rounded-xl border border-slate-200 bg-white px-4 py-2 text-sm font-medium text-slate-700 hover:bg-slate-50"
           >
-            Add Applicant
+            지원자 추가
           </button>
 
           <button

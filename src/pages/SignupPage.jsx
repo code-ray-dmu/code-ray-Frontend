@@ -11,13 +11,13 @@ function getEmailValidationMessage(email) {
   const normalizedEmail = normalizeEmail(email);
 
   if (normalizedEmail.length === 0) {
-    return 'Please enter your email.';
+    return '이메일을 입력해 주세요.';
   }
 
   const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
   if (!emailPattern.test(normalizedEmail)) {
-    return 'Please enter a valid email address.';
+    return '올바른 이메일 주소를 입력해 주세요.';
   }
 
   return null;
@@ -29,15 +29,15 @@ function getPasswordConfirmationMessage(password, confirmPassword) {
   }
 
   if (password !== confirmPassword) {
-    return 'Passwords do not match.';
+    return '비밀번호가 일치하지 않습니다.';
   }
 
-  return 'Passwords match.';
+  return '비밀번호가 일치합니다.';
 }
 
 function getFormValidationMessage(input, confirmPassword) {
   if (input.name.trim().length === 0) {
-    return 'Please enter your name.';
+    return '이름을 입력해 주세요.';
   }
 
   const emailValidationMessage = getEmailValidationMessage(input.email);
@@ -47,15 +47,15 @@ function getFormValidationMessage(input, confirmPassword) {
   }
 
   if (input.password.length === 0) {
-    return 'Please enter your password.';
+    return '비밀번호를 입력해 주세요.';
   }
 
   if (confirmPassword.length === 0) {
-    return 'Please confirm your password.';
+    return '비밀번호 확인을 입력해 주세요.';
   }
 
   if (input.password !== confirmPassword) {
-    return 'Passwords do not match.';
+    return '비밀번호가 일치하지 않습니다.';
   }
 
   return null;
@@ -73,22 +73,22 @@ function getSignUpErrorMessage(error) {
   const errorCode = getApiErrorCode(error);
 
   if (errorCode === 'USER_EMAIL_CONFLICT') {
-    return 'This email is already in use.';
+    return '이미 사용 중인 이메일입니다.';
   }
 
   if (errorCode === 'VALIDATION_ERROR') {
-    return 'Please review your input and try again.';
+    return '입력한 내용을 다시 확인해 주세요.';
   }
 
   if (axios.isAxiosError(error) && error.response === undefined) {
-    return 'Unable to reach the server. Please check your connection and try again.';
+    return '서버에 연결할 수 없습니다. 네트워크 상태를 확인한 뒤 다시 시도해 주세요.';
   }
 
   if (error instanceof Error && error.message.length > 0) {
     return error.message;
   }
 
-  return 'Sign up failed. Please try again.';
+  return '회원가입에 실패했습니다. 다시 시도해 주세요.';
 }
 
 export function SignupPage() {
@@ -129,7 +129,7 @@ export function SignupPage() {
         replace: true,
         state: {
           email: normalizedInput.email,
-          signupSuccessMessage: 'Your account has been created. Please sign in.',
+          signupSuccessMessage: '회원가입이 완료되었습니다. 로그인해 주세요.',
         },
       });
     } catch (error) {
@@ -164,13 +164,13 @@ export function SignupPage() {
       <div className="w-full max-w-md rounded-2xl bg-white p-8 shadow-md">
         <div className="mb-6 text-center">
           <img src="/logo.png" alt="Code-Ray" className="mx-auto h-14 w-auto" />
-          <p className="mt-2 text-sm text-gray-500">Create your account</p>
+          <p className="mt-2 text-sm text-gray-500">새 계정을 만들어 보세요</p>
         </div>
 
         <form className="space-y-4" onSubmit={handleSubmit}>
           <input
             type="text"
-            placeholder="Name"
+            placeholder="이름"
             className="w-full rounded-lg border px-4 py-2 outline-none focus:ring-2 focus:ring-blue-400"
             value={name}
             onChange={handleNameChange}
@@ -178,7 +178,7 @@ export function SignupPage() {
 
           <input
             type="email"
-            placeholder="Email"
+            placeholder="이메일"
             className="w-full rounded-lg border px-4 py-2 outline-none focus:ring-2 focus:ring-blue-400"
             value={email}
             onChange={handleEmailChange}
@@ -186,7 +186,7 @@ export function SignupPage() {
 
           <input
             type="password"
-            placeholder="Password"
+            placeholder="비밀번호"
             className="w-full rounded-lg border px-4 py-2 outline-none focus:ring-2 focus:ring-blue-400"
             value={password}
             onChange={handlePasswordChange}
@@ -194,7 +194,7 @@ export function SignupPage() {
 
           <input
             type="password"
-            placeholder="Confirm Password"
+            placeholder="비밀번호 확인"
             className="w-full rounded-lg border px-4 py-2 outline-none focus:ring-2 focus:ring-blue-400"
             value={confirmPassword}
             onChange={handleConfirmPasswordChange}
@@ -215,20 +215,20 @@ export function SignupPage() {
             disabled={isSubmitting}
             className="mt-6 w-full rounded-lg bg-blue-500 py-2 font-semibold text-white hover:bg-blue-600 disabled:cursor-not-allowed disabled:bg-slate-300"
           >
-            {isSubmitting ? 'Signing Up...' : 'Sign Up'}
+            {isSubmitting ? '가입 중...' : '회원가입'}
           </button>
         </form>
 
         <div className="mt-4 text-center text-sm text-gray-500">
-          Already have an account?{' '}
+          이미 계정이 있으신가요?{' '}
           <span onClick={() => navigate('/login')} className="cursor-pointer text-blue-500">
-            Sign in
+            로그인
           </span>
         </div>
 
         <div className="mt-2 text-center text-xs text-gray-400">
           <span onClick={() => navigate('/')} className="cursor-pointer hover:underline">
-            Back to Home
+            홈으로 돌아가기
           </span>
         </div>
       </div>
