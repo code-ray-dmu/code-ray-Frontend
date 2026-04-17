@@ -9,21 +9,12 @@ function DetailItem({ label, value, shouldWrap = false }) {
   );
 }
 
-function formatCreatedAt(createdAt) {
-  if (typeof createdAt !== 'string' || createdAt.length === 0) {
+function formatApplicantCount(applicantCount) {
+  if (!Number.isInteger(applicantCount) || applicantCount < 0) {
     return '-';
   }
 
-  const parsedDate = new Date(createdAt);
-
-  if (Number.isNaN(parsedDate.getTime())) {
-    return createdAt;
-  }
-
-  return new Intl.DateTimeFormat('ko-KR', {
-    dateStyle: 'medium',
-    timeStyle: 'short',
-  }).format(parsedDate);
+  return `${applicantCount}명`;
 }
 
 function getCultureFitPriorityLabel(priority) {
@@ -42,7 +33,7 @@ function getCultureFitPriorityLabel(priority) {
   return priority ?? '미정';
 }
 
-export function GroupDetailPanel({ group }) {
+export function GroupDetailPanel({ group, applicantCount }) {
   return (
     <section className="space-y-6">
       <div className="rounded-2xl border border-slate-200 bg-white p-8 shadow-sm">
@@ -63,7 +54,7 @@ export function GroupDetailPanel({ group }) {
         </div>
 
         <div className="mt-8 grid gap-4 md:grid-cols-2">
-          <DetailItem label="생성 일시" value={formatCreatedAt(group.createdAt)} />
+          <DetailItem label="등록 지원자 수" value={formatApplicantCount(applicantCount)} />
           <DetailItem label="프레임워크" value={group.techStacks.framework || '-'} />
           <DetailItem label="데이터베이스" value={group.techStacks.db || '-'} />
           <DetailItem

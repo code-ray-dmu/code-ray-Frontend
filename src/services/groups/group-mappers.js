@@ -4,6 +4,18 @@ function normalizeString(value) {
   return typeof value === 'string' ? value : null;
 }
 
+function normalizeFirstString(...values) {
+  for (const value of values) {
+    const normalizedValue = normalizeString(value);
+
+    if (normalizedValue !== null) {
+      return normalizedValue;
+    }
+  }
+
+  return null;
+}
+
 function normalizeTechStacks(techStacks) {
   if (techStacks === null || typeof techStacks !== 'object' || Array.isArray(techStacks)) {
     return {
@@ -20,9 +32,9 @@ function normalizeTechStacks(techStacks) {
 
 function mapGroupBase(group) {
   return {
-    id: normalizeString(group?.group_id),
-    name: normalizeString(group?.name),
-    createdAt: normalizeString(group?.created_at),
+    id: normalizeFirstString(group?.group_id, group?.id),
+    name: normalizeFirstString(group?.name),
+    createdAt: normalizeFirstString(group?.created_at, group?.createdAt),
   };
 }
 
@@ -53,31 +65,22 @@ function normalizeNonNegativeInteger(value, fallbackValue) {
 export function mapCreatedGroup(group) {
   return {
     ...mapGroupBase(group),
-    description: normalizeString(group?.description),
-    techStacks: normalizeTechStacks(group?.tech_stacks),
-    cultureFitPriority: normalizeString(group?.culture_fit_priority),
-    applicantCount: normalizeApplicantCount(group?.applicant_count),
+    description: normalizeFirstString(group?.description),
+    techStacks: normalizeTechStacks(group?.tech_stacks ?? group?.techStacks),
+    cultureFitPriority: normalizeFirstString(
+      group?.culture_fit_priority,
+      group?.cultureFitPriority,
+    ),
+    applicantCount: normalizeApplicantCount(group?.applicant_count ?? group?.applicantCount),
   };
 }
 
 export function mapGroupListItem(group) {
-  return {
-    ...mapGroupBase(group),
-    description: normalizeString(group?.description),
-    techStacks: normalizeTechStacks(group?.tech_stacks),
-    cultureFitPriority: normalizeString(group?.culture_fit_priority),
-    applicantCount: normalizeApplicantCount(group?.applicant_count),
-  };
+  return mapCreatedGroup(group);
 }
 
 export function mapGroupDetail(group) {
-  return {
-    ...mapGroupBase(group),
-    description: normalizeString(group?.description),
-    techStacks: normalizeTechStacks(group?.tech_stacks),
-    cultureFitPriority: normalizeString(group?.culture_fit_priority),
-    applicantCount: normalizeApplicantCount(group?.applicant_count),
-  };
+  return mapCreatedGroup(group);
 }
 
 export function mapRequestMeta(meta) {

@@ -1104,7 +1104,7 @@ export function GroupDetailPage() {
 
           {!isLoadingGroup && groupErrorState === null && group !== null ? (
             <>
-              <GroupDetailPanel group={group} />
+              <GroupDetailPanel group={group} applicantCount={applicantListMeta.total} />
 
               {applicantCreationSuccessMessage.length > 0 ? (
                 <div className="rounded-2xl border border-emerald-200 bg-emerald-50 px-5 py-4 text-sm text-emerald-800">
