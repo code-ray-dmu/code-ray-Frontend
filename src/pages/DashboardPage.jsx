@@ -236,6 +236,7 @@ export function DashboardPage() {
     navigate(`/groups/${group.id}`, {
       state: {
         from: `${location.pathname}${location.search}`,
+        groupSummary: group,
       },
     });
   }
